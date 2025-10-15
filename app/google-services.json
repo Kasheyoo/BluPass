@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1058630038219",
+    "project_id": "blupass-d3441",
+    "storage_bucket": "blupass-d3441.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1058630038219:android:34e7efbd4fb3dbe5b1e14e",
+        "android_client_info": {
+          "package_name": "com.example.eldroidproject"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCsfs8CHXHHjk97MVh2UP5nJFi2je-Zuaw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
