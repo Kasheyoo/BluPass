@@ -6,32 +6,26 @@ import com.example.eldroidproject.View.RegisterView
 
 class RegisterPresenter(
     private val view: RegisterView,
-    private val repository: AuthRepository
+    private val authRepository: AuthRepository
 ) {
 
-    fun register(fullName: String, email: String, mobile: String, dob: String, password: String, confirmPassword: String) {
-        if (fullName.isEmpty() || email.isEmpty() || mobile.isEmpty() ||
-            dob.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()
-        ) {
-            view.showError("Please fill all fields")
-            return
-        }
-
-        if (password.length < 6) {
-            view.showError("Password must be at least 6 characters")
+    fun registerUser(email: String, password: String, confirmPassword: String, user: User) {
+        if (email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            view.showError("Please fill in all fields.")
             return
         }
 
         if (password != confirmPassword) {
-            view.showError("Passwords do not match")
+            view.showError("Passwords do not match.")
             return
         }
 
-        val user = User(fullName, email, mobile, dob)
-
-        repository.registerUser(email, password, user,
+        authRepository.registerUser(
+            email = email,
+            password = password,
+            user = user,
             onSuccess = { view.onRegisterSuccess() },
-            onFailure = { view.showError(it) }
+            onFailure = { error -> view.showError(error) }
         )
     }
 }

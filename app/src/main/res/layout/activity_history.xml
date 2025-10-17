@@ -155,6 +155,7 @@
         android:paddingHorizontal="20dp">
 
         <ImageButton
+            android:id="@+id/home"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -166,6 +167,7 @@
             android:padding="8dp" />
 
         <ImageButton
+            android:id="@+id/guest_access"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -177,6 +179,7 @@
             android:padding="8dp" />
 
         <ImageButton
+            android:id="@+id/home_history"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -188,6 +191,7 @@
             android:padding="8dp" />
 
         <ImageButton
+            android:id="@+id/profile"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

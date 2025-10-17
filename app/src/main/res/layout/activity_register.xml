@@ -166,13 +166,26 @@
             android:layout_marginBottom="8dp" />
 
         <TextView
-            android:id="@+id/tvLoginLink"
-            android:layout_width="match_parent"
+            android:layout_width="200dp"
+            android:layout_marginStart="70dp"
             android:layout_height="wrap_content"
-            android:text="Already have an account? Log In"
+            android:text="Already have an account?"
             android:textSize="12sp"
             android:gravity="center"
             android:textColor="#1C2C23"
+            android:layout_marginBottom="20dp" />
+
+        <TextView
+            android:id="@+id/tvLoginLink"
+            android:layout_width="50dp"
+            android:layout_marginStart="234dp"
+            android:layout_marginTop="-38dp"
+            android:layout_height="15dp"
+            android:textStyle="italic"
+            android:text="Login"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:textColor="@color/teal_200"
             android:layout_marginBottom="20dp" />
 
     </LinearLayout>

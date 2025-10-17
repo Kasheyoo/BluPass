@@ -40,4 +40,12 @@ class AuthRepository {
                 else onFailure(task.exception?.message ?: "Invalid credentials")
             }
     }
+
+    fun logoutUser() {
+        auth.signOut()
+    }
+
+    fun isUserLoggedIn(): Boolean {
+        return auth.currentUser != null
+    }
 }
