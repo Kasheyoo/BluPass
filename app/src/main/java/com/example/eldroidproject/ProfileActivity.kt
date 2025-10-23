@@ -9,6 +9,8 @@ import com.example.eldroidproject.Model.AuthRepository
 import com.example.eldroidproject.Model.ProfileRepository
 import com.example.eldroidproject.Presenter.ProfilePresenter
 import com.example.eldroidproject.View.ProfileView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 
 class ProfileActivity : AppCompatActivity(), ProfileView.View {
 
@@ -24,12 +26,14 @@ class ProfileActivity : AppCompatActivity(), ProfileView.View {
     private lateinit var btnSavePassword: Button
     private lateinit var passwordContainer: LinearLayout
     private lateinit var changePasswordText: TextView
-
     private lateinit var homeButton: ImageButton
     private lateinit var guestAccessButton: ImageButton
     private lateinit var historyButton: ImageButton
     private lateinit var profileButton: ImageButton
+    private lateinit var etUUID: EditText
 
+    private lateinit var databaseRef: DatabaseReference
+    private lateinit var auth: FirebaseAuth
     private var isEditing = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,6 +41,10 @@ class ProfileActivity : AppCompatActivity(), ProfileView.View {
         setContentView(R.layout.activity_profile)
 
         presenter = ProfilePresenter(this, ProfileRepository(), AuthRepository())
+
+        // Initialize Firebase
+        auth = FirebaseAuth.getInstance()
+        databaseRef = FirebaseDatabase.getInstance().reference.child("Users")
 
         // Initialize views
         btnEdit = findViewById(R.id.btnEdit)
@@ -46,13 +54,12 @@ class ProfileActivity : AppCompatActivity(), ProfileView.View {
         etPhone = findViewById(R.id.profilePhone)
         etPlate = findViewById(R.id.profilePlate)
         etModel = findViewById(R.id.profileCar)
-
+        etUUID = findViewById(R.id.bleUUID)
         passwordContainer = findViewById(R.id.passwordContainer)
         etPassword = findViewById(R.id.profilePassword)
         btnSavePassword = findViewById(R.id.btnSavePassword)
         changePasswordText = findViewById(R.id.changePasswordText)
         passwordContainer.visibility = View.GONE
-
         homeButton = findViewById(R.id.home)
         guestAccessButton = findViewById(R.id.guest_access)
         historyButton = findViewById(R.id.home_history)
@@ -60,10 +67,33 @@ class ProfileActivity : AppCompatActivity(), ProfileView.View {
 
         setEditingEnabled(false)
 
-        // 🔹 Load latest user data when profile opens
-        presenter.loadProfileData()
+        // ✅ Automatically retrieve and display profile data
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val userRef = databaseRef.child(currentUser.uid)
 
-        // 🔹 Edit button (toggle save)
+            userRef.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val name = snapshot.child("username").getValue(String::class.java) ?: ""
+                        val email = snapshot.child("email").getValue(String::class.java) ?: ""
+                        val phone = snapshot.child("phone").getValue(String::class.java) ?: ""
+                        val plate = snapshot.child("plate").getValue(String::class.java) ?: ""
+                        val model = snapshot.child("model").getValue(String::class.java) ?: ""
+                        val uuid = snapshot.child("uuid").getValue(String::class.java) ?: "No UUID found"
+
+                        // Populate UI
+                        populateProfileFields(name, email, phone, plate, model, uuid)
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    showMessage("Failed to load profile: ${error.message}")
+                }
+            })
+        }
+
+        // 🔹 Edit button
         btnEdit.setOnClickListener {
             if (!isEditing) {
                 isEditing = true
@@ -78,12 +108,13 @@ class ProfileActivity : AppCompatActivity(), ProfileView.View {
                     etEmail.text.toString(),
                     etPhone.text.toString(),
                     etPlate.text.toString(),
-                    etModel.text.toString()
+                    etModel.text.toString(),
+                    etUUID.text.toString()
                 )
             }
         }
 
-        // 🔹 Password change section
+        // 🔹 Password section
         changePasswordText.setOnClickListener {
             passwordContainer.visibility = View.VISIBLE
         }
@@ -106,7 +137,7 @@ class ProfileActivity : AppCompatActivity(), ProfileView.View {
 
         btnLogout.setOnClickListener { presenter.onLogoutClicked() }
 
-        // 🔹 Navigation buttons
+        // Navigation
         homeButton.setOnClickListener { presenter.onHomeClicked() }
         guestAccessButton.setOnClickListener { presenter.onGuestAccessClicked() }
         historyButton.setOnClickListener { presenter.onHistoryClicked() }
@@ -121,26 +152,26 @@ class ProfileActivity : AppCompatActivity(), ProfileView.View {
         etModel.isEnabled = enabled
     }
 
-    // ✅ Populate UI with latest Firebase data
     override fun populateProfileFields(
         name: String,
         email: String,
         phone: String,
         plate: String,
-        model: String
+        model: String,
+        uuid: String
     ) {
         etName.setText(name)
         etEmail.setText(email)
         etPhone.setText(phone)
         etPlate.setText(plate)
         etModel.setText(model)
+        etUUID.setText(uuid)
     }
 
     override fun showMessage(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    // Navigation
     override fun navigateToHome() = navigateTo(HomeActivity::class.java)
     override fun navigateToGuestAccess() = navigateTo(GuestAccessActivity::class.java)
     override fun navigateToHistory() = navigateTo(HistoryActivity::class.java)

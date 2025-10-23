@@ -18,12 +18,16 @@ class AuthRepository {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
-                    database.getReference("Users").child(userId).setValue(user)
+                    val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
+                    val userRef = database.getReference("users").child(uid)
+
+                    // 👇 This saves ALL user data, including UUID
+                    userRef.setValue(user)
                         .addOnSuccessListener { onSuccess() }
-                        .addOnFailureListener { e -> onFailure(e.message ?: "Database error") }
+                        .addOnFailureListener { e -> onFailure(e.message ?: "Failed to save user data") }
+
                 } else {
-                    onFailure(task.exception?.message ?: "Auth error")
+                    onFailure(task.exception?.message ?: "Registration failed")
                 }
             }
     }

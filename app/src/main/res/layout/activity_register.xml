@@ -38,7 +38,7 @@
             android:textSize="13sp" />
 
         <EditText
-            android:id="@+id/etFullName"
+            android:id="@+id/etUsername"
             android:layout_width="match_parent"
             android:layout_height="45dp"
             android:hint="Username"

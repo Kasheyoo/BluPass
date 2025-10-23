@@ -2,6 +2,7 @@ package com.example.eldroidproject.Model
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import kotlin.uuid.Uuid
 
 class ProfileRepository {
 
@@ -9,11 +10,12 @@ class ProfileRepository {
     private val db = FirebaseDatabase.getInstance().reference
 
     fun saveProfileData(
-        name: String,
+        username: String,
         email: String,
         phone: String,
         plate: String,
         model: String,
+        uuid: String,
         onSuccess: () -> Unit,
         onFailure: (String) -> Unit
     ) {
@@ -21,11 +23,12 @@ class ProfileRepository {
         val userRef = db.child("Users").child(user.uid)
 
         val updates = mapOf(
-            "username" to name,
+            "username" to username,
             "email" to email,
             "phone" to phone,
             "plate" to plate,
-            "model" to model
+            "model" to model,
+            "uuid" to uuid
         )
 
         userRef.updateChildren(updates)
@@ -55,7 +58,15 @@ class ProfileRepository {
         userRef.get()
             .addOnSuccessListener { snapshot ->
                 if (snapshot.exists()) {
-                    val data = snapshot.value as? Map<String, String> ?: emptyMap()
+                    val data = mutableMapOf<String, String>()
+
+                    data["username"] = snapshot.child("username").value?.toString() ?: ""
+                    data["email"] = snapshot.child("email").value?.toString() ?: ""
+                    data["phone"] = snapshot.child("phone").value?.toString() ?: ""
+                    data["plate"] = snapshot.child("plate").value?.toString() ?: ""
+                    data["model"] = snapshot.child("model").value?.toString() ?: ""
+                    data["uuid"] = snapshot.child("uuid").value?.toString() ?: ""
+
                     onSuccess(data)
                 } else {
                     onFailure("No user data found.")
@@ -65,4 +76,5 @@ class ProfileRepository {
                 onFailure(e.message ?: "Failed to fetch user data.")
             }
     }
+
 }

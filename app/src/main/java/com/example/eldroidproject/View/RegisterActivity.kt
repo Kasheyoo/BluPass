@@ -1,5 +1,7 @@
 package com.example.eldroidproject
 
+import android.app.Activity
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -11,8 +13,10 @@ import com.example.eldroidproject.Model.AuthRepository
 import com.example.eldroidproject.Model.User
 import com.example.eldroidproject.Presenter.RegisterPresenter
 import com.example.eldroidproject.View.RegisterView
+import java.util.Calendar
+import kotlin.random.Random
 
-class RegisterActivity : AppCompatActivity(), RegisterView {
+class RegisterActivity : Activity(), RegisterView {
 
     private lateinit var presenter: RegisterPresenter
     private lateinit var etFullName: EditText
@@ -29,7 +33,7 @@ class RegisterActivity : AppCompatActivity(), RegisterView {
         setContentView(R.layout.activity_register)
 
         // Initialize views
-        etFullName = findViewById(R.id.etFullName)
+        etFullName = findViewById(R.id.etUsername)
         etEmail = findViewById(R.id.etEmail)
         etMobile = findViewById(R.id.etMobile)
         etDOB = findViewById(R.id.etDOB)
@@ -40,13 +44,28 @@ class RegisterActivity : AppCompatActivity(), RegisterView {
 
         presenter = RegisterPresenter(this, AuthRepository())
 
+        etDOB.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val datePicker = DatePickerDialog(this, { _, y, m, d ->
+                etDOB.setText(String.format("%02d / %02d / %04d", d, m + 1, y))
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
+            datePicker.show()
+        }
+
         btnSignUp.setOnClickListener {
+            // 🔹 Generate a random UUID with 6 letters + 6 numbers
+            val letters = (1..6).map { ('A'..'Z').random() }.joinToString("")
+            val numbers = (1..6).map { Random.nextInt(0, 10) }.joinToString("")
+            val customUUID = "$letters$numbers"
+
             val user = User(
-                fullName = etFullName.text.toString(),
+                username = etFullName.text.toString(),
                 email = etEmail.text.toString(),
                 mobile = etMobile.text.toString(),
-                dob = etDOB.text.toString()
+                dob = etDOB.text.toString(),
+                uuid = customUUID
             )
+
             presenter.registerUser(
                 etEmail.text.toString(),
                 etPassword.text.toString(),

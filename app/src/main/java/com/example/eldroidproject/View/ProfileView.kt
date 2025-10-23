@@ -9,8 +9,14 @@ interface ProfileView {
         fun navigateToLogin()
         fun showMessage(message: String)
 
-        fun populateProfileFields(name: String, email: String, phone: String, plate: String, model: String)  // ✅ Add this
-
+        fun populateProfileFields(
+            name: String,
+            email: String,
+            phone: String,
+            plate: String,
+            model: String,
+            uuid: String
+        )
     }
 
     interface Presenter {
@@ -19,10 +25,9 @@ interface ProfileView {
         fun onHistoryClicked()
         fun onProfileClicked()
         fun onLogoutClicked()
-        fun saveProfileChanges(name: String, email: String, phone: String, plate: String, model: String)
-        fun onChangePasswordClicked(newPassword: String)   // ✅ added
-
+        // Note: include uuid parameter here
+        fun saveProfileChanges(name: String, email: String, phone: String, plate: String, model: String, uuid: String)
+        fun onChangePasswordClicked(newPassword: String)
         fun loadProfileData()
-
     }
 }
