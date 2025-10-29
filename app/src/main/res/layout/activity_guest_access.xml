@@ -1,276 +1,207 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/mainFrame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="#FFFFFF"
     tools:context=".GuestAccessActivity">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="#7EB8E6" />
-
+    <!-- MAIN CONTENT -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/guestContainer"
+        <!-- Header bar -->
+        <View
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:background="@drawable/container_background"
-            android:elevation="3dp">
+            android:layout_height="60dp"
+            android:background="#7EB8E6" />
 
+        <!-- Content area -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- Top container with invite button -->
             <LinearLayout
+                android:id="@+id/guestContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="@drawable/container_background"
+                android:elevation="3dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Guest Access"
+                        android:textColor="#000"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <Button
+                        android:id="@+id/inviteButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="#5CB85C"
+                        android:text="Invite Guest"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp" />
+                </LinearLayout>
 
                 <TextView
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Guest Access"
-                    android:textColor="#000"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
-
-                <Button
-                    android:id="@+id/inviteButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="#5CB85C"
-                    android:text="Invite Guest"
-                    android:textColor="#FFFFFF"
-                    android:textSize="12sp" />
+                    android:text="Invite guests with temporary access codes"
+                    android:textSize="10sp"
+                    android:textColor="#555"
+                    android:layout_marginTop="-14dp" />
             </LinearLayout>
 
-            <TextView
+            <!-- Scrollable guest list -->
+            <ScrollView
                 android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="12dp">
+
+                <LinearLayout
+                    android:id="@+id/guestListContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp" />
+            </ScrollView>
+        </LinearLayout>
+
+        <!-- Bottom Navigation -->
+        <LinearLayout
+            android:id="@+id/bottomNav"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:background="@drawable/bottom_nav_shape"
+            android:gravity="center"
+            android:paddingHorizontal="20dp">
+
+            <ImageButton
+                android:id="@+id/home"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Invite guests with temporary access codes"
-                android:textSize="13sp"
-                android:textColor="#555" />
+                android:layout_weight="1"
+                android:src="@drawable/home_logo"
+                android:background="@android:color/transparent"
+                android:contentDescription="Home"
+                android:padding="8dp" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <ImageButton
+                android:id="@+id/guest_access"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="vertical">
+                android:layout_weight="1"
+                android:src="@drawable/key_logo"
+                android:background="@android:color/transparent"
+                android:contentDescription="Key"
+                android:padding="8dp" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:background="@drawable/guest_card"
-                    android:padding="12dp"
-                    android:layout_marginBottom="8dp">
+            <ImageButton
+                android:id="@+id/home_history"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/history_logo"
+                android:background="@android:color/transparent"
+                android:contentDescription="History"
+                android:padding="8dp" />
 
-                    <TextView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:gravity="center"
-                        android:text="SW"
-                        android:textStyle="bold"
-                        android:textColor="#FFF"
-                        android:background="@drawable/circle_avatar" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Sarah Wilson"
-                            android:textColor="#000"
-                            android:textStyle="bold"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Code: A09-0926"
-                            android:textSize="12sp"
-                            android:textColor="#555" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Status: Active"
-                            android:textSize="12sp"
-                            android:textColor="#5CB85C" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:background="@drawable/guest_card"
-                    android:padding="12dp"
-                    android:layout_marginBottom="8dp">
-
-                    <TextView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:gravity="center"
-                        android:text="MJ"
-                        android:textStyle="bold"
-                        android:textColor="#FFF"
-                        android:background="@drawable/circle_avatar" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Mark Johnson"
-                            android:textColor="#000"
-                            android:textStyle="bold"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Code: A09-0925"
-                            android:textSize="12sp"
-                            android:textColor="#555" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Status: Used"
-                            android:textSize="12sp"
-                            android:textColor="#F0AD4E" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:background="@drawable/guest_card"
-                    android:padding="12dp">
-
-                    <TextView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:gravity="center"
-                        android:text="LC"
-                        android:textStyle="bold"
-                        android:textColor="#FFF"
-                        android:background="@drawable/circle_avatar" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Lisa Chen"
-                            android:textColor="#000"
-                            android:textStyle="bold"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Code: A09-0924"
-                            android:textSize="12sp"
-                            android:textColor="#555" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Status: Expired"
-                            android:textSize="12sp"
-                            android:textColor="#D9534F" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
+            <ImageButton
+                android:id="@+id/profile"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:src="@drawable/account_logo"
+                android:background="@android:color/transparent"
+                android:contentDescription="Profile"
+                android:padding="8dp" />
         </LinearLayout>
     </LinearLayout>
 
+    <!-- Overlay popup -->
     <LinearLayout
-        android:id="@+id/bottomNav"
+        android:id="@+id/codeOverlay"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:orientation="horizontal"
-        android:background="@drawable/bottom_nav_shape"
+        android:layout_height="match_parent"
         android:gravity="center"
-        android:paddingHorizontal="20dp">
+        android:background="#80000000"
+        android:visibility="gone"
+        android:clickable="false"
+        android:focusable="false">
 
-        <ImageButton
-            android:id="@+id/home"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:id="@+id/codeCard"
+            android:layout_width="280dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/home_logo"
-            android:background="@android:color/transparent"
-            android:contentDescription="Home"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
-            android:padding="8dp" />
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:background="@drawable/guest_card"
+            android:elevation="8dp">
 
-        <ImageButton
-            android:id="@+id/guest_access"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/key_logo"
-            android:background="@android:color/transparent"
-            android:contentDescription="Key"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
-            android:padding="8dp" />
+            <TextView
+                android:id="@+id/codeTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Code for Guest"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#000"
+                android:layout_gravity="center_horizontal" />
 
-        <ImageButton
-            android:id="@+id/home_history"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/history_logo"
-            android:background="@android:color/transparent"
-            android:contentDescription="History"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
-            android:padding="8dp" />
+            <!-- Guest name input -->
+            <EditText
+                android:id="@+id/guestNameInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter Guest Name"
+                android:layout_marginTop="12dp"
+                android:padding="8dp"
+                android:background="@drawable/container_background"
+                android:textColor="#000"
+                android:textSize="14sp" />
 
-        <ImageButton
-            android:id="@+id/profile"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:src="@drawable/account_logo"
-            android:background="@android:color/transparent"
-            android:contentDescription="Account"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
-            android:padding="8dp" />
+            <TextView
+                android:id="@+id/generatedCodeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="000000"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="#5CB85C"
+                android:layout_marginTop="12dp"
+                android:layout_gravity="center_horizontal" />
+
+            <Button
+                android:id="@+id/okButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="OK"
+                android:textColor="#FFF"
+                android:backgroundTint="#5CB85C"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center_horizontal"
+                android:paddingHorizontal="20dp" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</FrameLayout>

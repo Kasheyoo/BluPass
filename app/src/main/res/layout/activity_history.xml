@@ -9,142 +9,27 @@
     android:background="#FFFFFF"
     tools:context=".HistoryActivity">
 
+    <!-- Header -->
     <View
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="#7EB8E6" />
 
-    <LinearLayout
+    <!-- Scrollable content -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:orientation="vertical"
-        android:gravity="center"
         android:padding="16dp">
 
         <LinearLayout
             android:id="@+id/historyContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:background="@drawable/container_background"
-            android:elevation="3dp">
+            android:orientation="vertical" />
+    </ScrollView>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Entry History"
-                android:textColor="#000"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Your recent gate activity"
-                android:textSize="13sp"
-                android:textColor="#555" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:background="@drawable/guest_card"
-                    android:padding="12dp"
-                    android:layout_marginBottom="8dp">
-
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:src="@drawable/key_logo"
-                        android:contentDescription="Entry Icon" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Entry"
-                            android:textColor="#000"
-                            android:textStyle="bold"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Vehicle: ABC123"
-                            android:textSize="12sp"
-                            android:textColor="#555" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Date: 26/09/2025   11:47:29"
-                            android:textSize="12sp"
-                            android:textColor="#777" />
-                    </LinearLayout>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:background="@drawable/guest_card"
-                    android:padding="12dp">
-
-                    <ImageView
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:src="@drawable/key_logo"
-                        android:contentDescription="Exit Icon" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="8dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Exit"
-                            android:textColor="#000"
-                            android:textStyle="bold"
-                            android:textSize="14sp" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Vehicle: ABC123"
-                            android:textSize="12sp"
-                            android:textColor="#555" />
-
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Date: 25/09/2025   19:20:48"
-                            android:textSize="12sp"
-                            android:textColor="#777" />
-                    </LinearLayout>
-                </LinearLayout>
-            </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
-
+    <!-- Bottom navigation -->
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
@@ -162,8 +47,6 @@
             android:src="@drawable/home_logo"
             android:background="@android:color/transparent"
             android:contentDescription="Home"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
             android:padding="8dp" />
 
         <ImageButton
@@ -173,9 +56,7 @@
             android:layout_weight="1"
             android:src="@drawable/key_logo"
             android:background="@android:color/transparent"
-            android:contentDescription="Key"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
+            android:contentDescription="Guest Access"
             android:padding="8dp" />
 
         <ImageButton
@@ -186,8 +67,6 @@
             android:src="@drawable/history_logo"
             android:background="@android:color/transparent"
             android:contentDescription="History"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
             android:padding="8dp" />
 
         <ImageButton
@@ -197,9 +76,7 @@
             android:layout_weight="1"
             android:src="@drawable/account_logo"
             android:background="@android:color/transparent"
-            android:contentDescription="Account"
-            android:scaleType="centerInside"
-            android:adjustViewBounds="true"
+            android:contentDescription="Profile"
             android:padding="8dp" />
     </LinearLayout>
 
