@@ -25,16 +25,14 @@ class ProfilePresenter(
         email: String,
         phone: String,
         plate: String,
-        model: String,
-        uuid: String
+        model: String
     ) {
         profileRepo.saveProfileData(
-            username, email, phone, plate, model, uuid,
+            username, email, phone, plate, model,
             onSuccess = { view.showMessage("Profile updated successfully!") },
             onFailure = { error -> view.showMessage("Error: $error") }
         )
     }
-
 
     override fun onChangePasswordClicked(newPassword: String) {
         profileRepo.updatePassword(
@@ -56,8 +54,7 @@ class ProfilePresenter(
                     email = data["email"] ?: "",
                     phone = data["phone"] ?: "",
                     plate = data["plate"] ?: "",
-                    model = data["model"] ?: "",
-                    uuid = data["uuid"] ?: ""
+                    model = data["model"] ?: ""
                 )
             },
             onFailure = { error ->

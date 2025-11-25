@@ -54,7 +54,6 @@ class ProfileActivity : AppCompatActivity(), ProfileView.View {
         etPhone = findViewById(R.id.profilePhone)
         etPlate = findViewById(R.id.profilePlate)
         etModel = findViewById(R.id.profileCar)
-        etUUID = findViewById(R.id.bleUUID)
         passwordContainer = findViewById(R.id.passwordContainer)
         etPassword = findViewById(R.id.profilePassword)
         btnSavePassword = findViewById(R.id.btnSavePassword)
@@ -80,10 +79,9 @@ class ProfileActivity : AppCompatActivity(), ProfileView.View {
                         val phone = snapshot.child("phone").getValue(String::class.java) ?: ""
                         val plate = snapshot.child("plate").getValue(String::class.java) ?: ""
                         val model = snapshot.child("model").getValue(String::class.java) ?: ""
-                        val uuid = snapshot.child("uuid").getValue(String::class.java) ?: "No UUID found"
 
                         // Populate UI
-                        populateProfileFields(name, email, phone, plate, model, uuid)
+                        populateProfileFields(name, email, phone, plate, model)
                     }
                 }
 
@@ -108,8 +106,7 @@ class ProfileActivity : AppCompatActivity(), ProfileView.View {
                     etEmail.text.toString(),
                     etPhone.text.toString(),
                     etPlate.text.toString(),
-                    etModel.text.toString(),
-                    etUUID.text.toString()
+                    etModel.text.toString()
                 )
             }
         }
@@ -157,15 +154,13 @@ class ProfileActivity : AppCompatActivity(), ProfileView.View {
         email: String,
         phone: String,
         plate: String,
-        model: String,
-        uuid: String
+        model: String
     ) {
         etName.setText(name)
         etEmail.setText(email)
         etPhone.setText(phone)
         etPlate.setText(plate)
         etModel.setText(model)
-        etUUID.setText(uuid)
     }
 
     override fun showMessage(message: String) {

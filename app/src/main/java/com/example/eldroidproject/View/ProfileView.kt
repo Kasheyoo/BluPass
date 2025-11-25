@@ -14,8 +14,7 @@ interface ProfileView {
             email: String,
             phone: String,
             plate: String,
-            model: String,
-            uuid: String
+            model: String
         )
     }
 
@@ -26,7 +25,7 @@ interface ProfileView {
         fun onProfileClicked()
         fun onLogoutClicked()
         // Note: include uuid parameter here
-        fun saveProfileChanges(name: String, email: String, phone: String, plate: String, model: String, uuid: String)
+        fun saveProfileChanges(name: String, email: String, phone: String, plate: String, model: String)
         fun onChangePasswordClicked(newPassword: String)
         fun loadProfileData()
     }

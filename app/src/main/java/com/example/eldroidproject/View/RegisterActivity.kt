@@ -53,17 +53,11 @@ class RegisterActivity : Activity(), RegisterView {
         }
 
         btnSignUp.setOnClickListener {
-            // 🔹 Generate a random UUID with 6 letters + 6 numbers
-            val letters = (1..6).map { ('A'..'Z').random() }.joinToString("")
-            val numbers = (1..6).map { Random.nextInt(0, 10) }.joinToString("")
-            val customUUID = "$letters$numbers"
-
             val user = User(
                 username = etFullName.text.toString(),
                 email = etEmail.text.toString(),
                 mobile = etMobile.text.toString(),
-                dob = etDOB.text.toString(),
-                uuid = customUUID
+                dob = etDOB.text.toString()
             )
 
             presenter.registerUser(

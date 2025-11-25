@@ -15,7 +15,6 @@ class ProfileRepository {
         phone: String,
         plate: String,
         model: String,
-        uuid: String,
         onSuccess: () -> Unit,
         onFailure: (String) -> Unit
     ) {
@@ -27,8 +26,7 @@ class ProfileRepository {
             "email" to email,
             "phone" to phone,
             "plate" to plate,
-            "model" to model,
-            "uuid" to uuid
+            "model" to model
         )
 
         userRef.updateChildren(updates)
@@ -65,7 +63,6 @@ class ProfileRepository {
                     data["phone"] = snapshot.child("phone").value?.toString() ?: ""
                     data["plate"] = snapshot.child("plate").value?.toString() ?: ""
                     data["model"] = snapshot.child("model").value?.toString() ?: ""
-                    data["uuid"] = snapshot.child("uuid").value?.toString() ?: ""
 
                     onSuccess(data)
                 } else {
