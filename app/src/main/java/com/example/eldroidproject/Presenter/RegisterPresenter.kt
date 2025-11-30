@@ -24,7 +24,13 @@ class RegisterPresenter(
             email = email,
             password = password,
             user = user,
-            onSuccess = { view.onRegisterSuccess() },
+            onSuccess = {
+                if (user.role == "Admin") {
+                    view.onRegisterSuccess()   // Admin → dashboard
+                } else {
+                    view.onRegisterPending()   // Homeowner → pending message
+                }
+            },
             onFailure = { error -> view.showError(error) }
         )
     }

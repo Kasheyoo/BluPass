@@ -14,9 +14,11 @@ class LoginPresenter(
             return
         }
 
-        repository.loginUser(email, password,
-            onSuccess = { view.onLoginSuccess() },
-            onFailure = { view.showError(it) }
+        repository.loginUser(
+            email,
+            password,
+            onSuccess = { role -> view.onLoginSuccess(role) },
+            onFailure = { error -> view.showError(error) }
         )
     }
 }
