@@ -21,10 +21,18 @@ class AuthRepository {
                     val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
                     val userRef = database.getReference("users").child(uid)
 
-                    // 👇 This saves ALL user data, including UUID
-                    userRef.setValue(user)
+                    // Admin auto-approved, Homeowner pending
+                    val finalUser = if (user.role == "Admin") {
+                        user.copy(status = "approved")
+                    } else {
+                        user.copy(status = "pending")
+                    }
+
+                    userRef.setValue(finalUser)
                         .addOnSuccessListener { onSuccess() }
-                        .addOnFailureListener { e -> onFailure(e.message ?: "Failed to save user data") }
+                        .addOnFailureListener { e ->
+                            onFailure(e.message ?: "Failed to save user data")
+                        }
 
                 } else {
                     onFailure(task.exception?.message ?: "Registration failed")
@@ -35,13 +43,33 @@ class AuthRepository {
     fun loginUser(
         email: String,
         password: String,
-        onSuccess: () -> Unit,
+        onSuccess: (String) -> Unit,   // return role
         onFailure: (String) -> Unit
     ) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
-                if (task.isSuccessful) onSuccess()
-                else onFailure(task.exception?.message ?: "Invalid credentials")
+                if (task.isSuccessful) {
+                    val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
+                    val userRef = database.getReference("users").child(uid)
+
+                    userRef.get().addOnSuccessListener { snapshot ->
+                        val role = snapshot.child("role").value as? String ?: ""
+                        val status = snapshot.child("status").value as? String ?: ""
+
+                        if (role == "Admin") {
+                            onSuccess(role) // Admin always allowed
+                        } else if (role == "Homeowner" && status == "approved") {
+                            onSuccess(role) // Homeowner only if approved
+                        } else {
+                            auth.signOut()
+                            onFailure("Your account is still pending admin approval.")
+                        }
+                    }.addOnFailureListener {
+                        onFailure("Failed to verify user status.")
+                    }
+                } else {
+                    onFailure(task.exception?.message ?: "Invalid credentials")
+                }
             }
     }
 

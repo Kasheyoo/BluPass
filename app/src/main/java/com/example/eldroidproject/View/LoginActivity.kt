@@ -9,6 +9,7 @@ import android.widget.Toast
 import com.example.eldroidproject.Model.AuthRepository
 import com.example.eldroidproject.Presenter.LoginPresenter
 import com.example.eldroidproject.View.LoginView
+import com.example.eldroidproject.View.AdminDashboardActivity
 
 class LoginActivity : Activity(), LoginView {
 
@@ -39,9 +40,16 @@ class LoginActivity : Activity(), LoginView {
         }
     }
 
-    override fun onLoginSuccess() {
+    override fun onLoginSuccess(role: String) {
         Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
-        startActivity(Intent(this, HomeActivity::class.java))
+
+        if (role == "Admin") {
+            // Admin goes directly to dashboard
+            startActivity(Intent(this, AdminDashboardActivity::class.java))
+        } else {
+            // Homeowner goes to HomeActivity
+            startActivity(Intent(this, HomeActivity::class.java))
+        }
         finish()
     }
 

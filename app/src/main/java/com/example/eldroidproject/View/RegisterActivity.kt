@@ -1,20 +1,18 @@
 package com.example.eldroidproject
 
 import android.app.Activity
-import android.app.DatePickerDialog
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import com.example.eldroidproject.Model.AuthRepository
 import com.example.eldroidproject.Model.User
 import com.example.eldroidproject.Presenter.RegisterPresenter
+import com.example.eldroidproject.View.AdminDashboardActivity
 import com.example.eldroidproject.View.RegisterView
-import java.util.Calendar
-import kotlin.random.Random
 
 class RegisterActivity : Activity(), RegisterView {
 
@@ -22,7 +20,7 @@ class RegisterActivity : Activity(), RegisterView {
     private lateinit var etFullName: EditText
     private lateinit var etEmail: EditText
     private lateinit var etMobile: EditText
-    private lateinit var etDOB: EditText
+    private lateinit var etRole: EditText
     private lateinit var etPassword: EditText
     private lateinit var etConfirmPassword: EditText
     private lateinit var btnSignUp: Button
@@ -36,7 +34,7 @@ class RegisterActivity : Activity(), RegisterView {
         etFullName = findViewById(R.id.etUsername)
         etEmail = findViewById(R.id.etEmail)
         etMobile = findViewById(R.id.etMobile)
-        etDOB = findViewById(R.id.etDOB)
+        etRole = findViewById(R.id.etRole)
         etPassword = findViewById(R.id.etPassword)
         etConfirmPassword = findViewById(R.id.etConfirmPassword)
         btnSignUp = findViewById(R.id.btnSignUp)
@@ -44,20 +42,26 @@ class RegisterActivity : Activity(), RegisterView {
 
         presenter = RegisterPresenter(this, AuthRepository())
 
-        etDOB.setOnClickListener {
-            val calendar = Calendar.getInstance()
-            val datePicker = DatePickerDialog(this, { _, y, m, d ->
-                etDOB.setText(String.format("%02d / %02d / %04d", d, m + 1, y))
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH))
-            datePicker.show()
+        // Role selection dialog (only Admin and Homeowner)
+        etRole.setOnClickListener {
+            val roles = arrayOf("Admin", "Homeowner")
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Select Role")
+            builder.setItems(roles) { _, which ->
+                etRole.setText(roles[which])
+            }
+            builder.show()
         }
 
         btnSignUp.setOnClickListener {
+            val role = etRole.text.toString()
+
             val user = User(
                 username = etFullName.text.toString(),
                 email = etEmail.text.toString(),
                 mobile = etMobile.text.toString(),
-                dob = etDOB.text.toString()
+                role = role,
+                status = if (role == "Admin") "approved" else "pending"
             )
 
             presenter.registerUser(
@@ -68,7 +72,7 @@ class RegisterActivity : Activity(), RegisterView {
             )
         }
 
-        // ✅ This makes the "Login" text functional
+        // Login redirect
         tvLoginLink.setOnClickListener {
             val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
@@ -76,8 +80,18 @@ class RegisterActivity : Activity(), RegisterView {
         }
     }
 
+    override fun onRegisterPending() {
+        Toast.makeText(
+            this,
+            "Registration request submitted. Await admin approval.",
+            Toast.LENGTH_LONG
+        ).show()
+        startActivity(Intent(this, LoginActivity::class.java))
+        finish()
+    }
+
     override fun onRegisterSuccess() {
-        Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Admin registration successful!", Toast.LENGTH_SHORT).show()
         startActivity(Intent(this, LoginActivity::class.java))
         finish()
     }
