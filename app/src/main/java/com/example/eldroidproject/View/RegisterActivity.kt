@@ -53,26 +53,89 @@ class RegisterActivity : Activity(), RegisterView {
         }
 
         btnSignUp.setOnClickListener {
+
+            val fullName = etFullName.text.toString().trim()
+            val email = etEmail.text.toString().trim()
+            val mobile = etMobile.text.toString().trim()
+            val dob = etDOB.text.toString().trim()
+            val password = etPassword.text.toString()
+            val confirmPassword = etConfirmPassword.text.toString()
+
+            // ========== VALIDATION SECTION ==========
+
+            if (fullName.isEmpty()) {
+                showError("Full Name is required")
+                return@setOnClickListener
+            }
+
+            if (email.isEmpty()) {
+                showError("Email is required")
+                return@setOnClickListener
+            }
+
+            // Must be GMAIL
+            if (!email.endsWith("@gmail.com", ignoreCase = true)) {
+                showError("Email must be a valid Gmail address (example@gmail.com)")
+                return@setOnClickListener
+            }
+
+            // Can also add stricter regex if needed
+            // if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {...}
+
+            if (mobile.isEmpty()) {
+                showError("Mobile number is required")
+                return@setOnClickListener
+            }
+
+            if (mobile.length < 11) {
+                showError("Mobile number must be at least 11 digits")
+                return@setOnClickListener
+            }
+
+            if (dob.isEmpty()) {
+                showError("Please select your date of birth")
+                return@setOnClickListener
+            }
+
+            if (password.isEmpty() || confirmPassword.isEmpty()) {
+                showError("Password fields cannot be empty")
+                return@setOnClickListener
+            }
+
+            if (password != confirmPassword) {
+                showError("Passwords do not match")
+                return@setOnClickListener
+            }
+
+            if (password.length < 6) {
+                showError("Password must be at least 6 characters long")
+                return@setOnClickListener
+            }
+
+            // ========== END OF VALIDATION ==========
+
+
             // 🔹 Generate a random UUID with 6 letters + 6 numbers
             val letters = (1..6).map { ('A'..'Z').random() }.joinToString("")
-            val numbers = (1..6).map { Random.nextInt(0, 10) }.joinToString("")
+            val numbers = (1..6).map { kotlin.random.Random.nextInt(0, 10) }.joinToString("")
             val customUUID = "$letters$numbers"
 
             val user = User(
-                username = etFullName.text.toString(),
-                email = etEmail.text.toString(),
-                mobile = etMobile.text.toString(),
-                dob = etDOB.text.toString(),
+                username = fullName,
+                email = email,
+                mobile = mobile,
+                dob = dob,
                 uuid = customUUID
             )
 
             presenter.registerUser(
-                etEmail.text.toString(),
-                etPassword.text.toString(),
-                etConfirmPassword.text.toString(),
+                email,
+                password,
+                confirmPassword,
                 user
             )
         }
+
 
         // ✅ This makes the "Login" text functional
         tvLoginLink.setOnClickListener {

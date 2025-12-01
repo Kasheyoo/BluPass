@@ -5,9 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
 import com.example.eldroidproject.Model.AuthRepository
 import com.example.eldroidproject.Presenter.LoginPresenter
+import com.example.eldroidproject.View.ForgotPassword
 import com.example.eldroidproject.View.LoginView
 
 class LoginActivity : Activity(), LoginView {
@@ -25,6 +27,13 @@ class LoginActivity : Activity(), LoginView {
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val btnSignUp = findViewById<Button>(R.id.btnSignUp)
 
+        val forgotPasswordText = findViewById<TextView>(R.id.tvForgotPassword)
+
+        forgotPasswordText.setOnClickListener {
+            val intent = Intent(this, ForgotPassword::class.java)
+            startActivity(intent)
+        }
+
         presenter = LoginPresenter(this, AuthRepository())
 
         btnLogin.setOnClickListener {
@@ -38,6 +47,7 @@ class LoginActivity : Activity(), LoginView {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
+
 
     override fun onLoginSuccess() {
         Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
