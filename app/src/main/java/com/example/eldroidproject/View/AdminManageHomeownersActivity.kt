@@ -1,9 +1,11 @@
 package com.example.eldroidproject.View
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -14,46 +16,49 @@ import com.google.firebase.database.*
 class AdminManageHomeownersActivity : Activity() {
 
     private lateinit var pendingContainer: LinearLayout
-    private lateinit var homeownersContainer: LinearLayout
     private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_admin_manage_homeowners)
 
+        val home = findViewById<ImageButton>(R.id.btnHome)
+        home.setOnClickListener {
+            val intent = Intent(this, AdminDashboardActivity::class.java)
+            startActivity(intent)
+        }
+
         pendingContainer = findViewById(R.id.pendingContainer)
-        homeownersContainer = findViewById(R.id.homeownersContainer)
 
-        database = FirebaseDatabase.getInstance().getReference("users")
+        database = FirebaseDatabase.getInstance().getReference("users/homeowners")
 
-        loadUsers()
+        loadPendingHomeowners()
     }
 
-    private fun loadUsers() {
-        database.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                // Clear old views
-                pendingContainer.removeAllViews()
-                homeownersContainer.removeAllViews()
+    private fun loadPendingHomeowners() {
+        database.orderByChild("status").equalTo("pending")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    pendingContainer.removeAllViews()
 
-                for (userSnap in snapshot.children) {
-                    val user = userSnap.getValue(User::class.java)
-                    val uid = userSnap.key ?: continue
+                    for (homeSnap in snapshot.children) {
+                        val user = homeSnap.getValue(User::class.java)
+                        val uid = homeSnap.key ?: continue
 
-                    if (user != null) {
-                        if (user.status == "pending") {
+                        if (user != null) {
                             addPendingUserView(user, uid)
-                        } else if (user.status == "approved") {
-                            addApprovedUserView(user)
                         }
                     }
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(this@AdminManageHomeownersActivity, "Failed to load users", Toast.LENGTH_SHORT).show()
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(
+                        this@AdminManageHomeownersActivity,
+                        "Failed to load pending homeowners: ${error.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            })
     }
 
     private fun addPendingUserView(user: User, uid: String) {
@@ -76,15 +81,5 @@ class AdminManageHomeownersActivity : Activity() {
         }
 
         pendingContainer.addView(row)
-    }
-
-    private fun addApprovedUserView(user: User) {
-        val inflater = LayoutInflater.from(this)
-        val row = inflater.inflate(R.layout.item_homeowner, homeownersContainer, false)
-
-        val tvName = row.findViewById<TextView>(R.id.tvHomeownerName)
-        tvName.text = user.username
-
-        homeownersContainer.addView(row)
     }
 }

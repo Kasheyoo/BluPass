@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import com.example.eldroidproject.Model.AuthRepository
+import com.example.eldroidproject.Model.AuthRepository   // ✅ lowercase package
 import com.example.eldroidproject.Presenter.LoginPresenter
 import com.example.eldroidproject.View.LoginView
 import com.example.eldroidproject.View.AdminDashboardActivity
@@ -14,14 +14,14 @@ import com.example.eldroidproject.View.AdminDashboardActivity
 class LoginActivity : Activity(), LoginView {
 
     private lateinit var presenter: LoginPresenter
-    private lateinit var etEmail: EditText
+    private lateinit var etUsername: EditText
     private lateinit var etPassword: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        etEmail = findViewById(R.id.etEmail)
+        etUsername = findViewById(R.id.etUsername)
         etPassword = findViewById(R.id.etPassword)
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val btnSignUp = findViewById<Button>(R.id.btnSignUp)
@@ -29,10 +29,9 @@ class LoginActivity : Activity(), LoginView {
         presenter = LoginPresenter(this, AuthRepository())
 
         btnLogin.setOnClickListener {
-            presenter.login(
-                etEmail.text.toString().trim(),
-                etPassword.text.toString().trim()
-            )
+            val username = etUsername.text.toString().trim()
+            val password = etPassword.text.toString().trim()
+            presenter.loginWithUsername(username, password)
         }
 
         btnSignUp.setOnClickListener {
@@ -40,20 +39,28 @@ class LoginActivity : Activity(), LoginView {
         }
     }
 
+    // ✅ Approved accounts
     override fun onLoginSuccess(role: String) {
         Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
+        navigateToDashboard(role)
+    }
 
-        if (role == "Admin") {
-            // Admin goes directly to dashboard
-            startActivity(Intent(this, AdminDashboardActivity::class.java))
-        } else {
-            // Homeowner goes to HomeActivity
-            startActivity(Intent(this, HomeActivity::class.java))
-        }
-        finish()
+    // ✅ Pending accounts
+    override fun onLoginPending(role: String) {
+        Toast.makeText(this, "Your account is still pending approval.", Toast.LENGTH_LONG).show()
+        navigateToDashboard(role)
     }
 
     override fun showError(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun navigateToDashboard(role: String) {
+        if (role == "Admin") {
+            startActivity(Intent(this, AdminDashboardActivity::class.java))
+        } else {
+            startActivity(Intent(this, HomeActivity::class.java))
+        }
+        finish()
     }
 }
