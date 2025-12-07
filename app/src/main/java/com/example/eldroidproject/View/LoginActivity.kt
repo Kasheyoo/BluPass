@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import com.example.eldroidproject.Model.AuthRepository
 import com.example.eldroidproject.Presenter.LoginPresenter
+import com.example.eldroidproject.View.ForgotPassword
 import com.example.eldroidproject.View.LoginView
 
 class LoginActivity : Activity(), LoginView {
@@ -28,7 +29,10 @@ class LoginActivity : Activity(), LoginView {
 
         val forgotPasswordText = findViewById<TextView>(R.id.tvForgotPassword)
 
-
+        forgotPasswordText.setOnClickListener {
+            val intent = Intent(this, ForgotPassword::class.java)
+            startActivity(intent)
+        }
 
         presenter = LoginPresenter(this, AuthRepository())
 
