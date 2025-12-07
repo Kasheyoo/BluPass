@@ -36,9 +36,6 @@
         </activity>
 
         <activity
-            android:name=".View.ForgotPassword"
-            android:exported="false" />
-        <activity
             android:name=".ProfileActivity"
             android:exported="false" />
         <activity
