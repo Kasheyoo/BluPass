@@ -8,24 +8,29 @@ class GuestAccessPresenter(
     private val repository: GuestRepository
 ) : GuestAccessView.Presenter {
 
+    override fun generateCode(guestName: String) {
+        val randomCode = (100000..999999).random().toString()
+
+        // Calls Function 1 from Repository
+        repository.saveGuestInvite(guestName, randomCode) { success, message ->
+            if (success) {
+                view.onCodeGenerated(randomCode)
+            } else {
+                view.showError(message ?: "Error generating code")
+            }
+        }
+    }
+
     override fun loadGuests() {
-        val guests = repository.getGuestList()
-        view.displayGuests(guests)
+        // Calls Function 2 from Repository
+        repository.getGuestList { guests ->
+            view.displayGuests(guests)
+        }
     }
 
-    override fun onHomeClicked() {
-        view.navigateToHome()
-    }
-
-    override fun onHistoryClicked() {
-        view.navigateToHistory()
-    }
-
-    override fun onProfileClicked() {
-        view.navigateToProfile()
-    }
-
-    override fun onGuestAccessClicked() {
-        view.navigateToGuestAccess()
-    }
+    // Navigation
+    override fun onHomeClicked() { view.navigateToHome() }
+    override fun onHistoryClicked() { view.navigateToHistory() }
+    override fun onProfileClicked() { view.navigateToProfile() }
+    override fun onGuestAccessClicked() { view.navigateToGuestAccess() }
 }

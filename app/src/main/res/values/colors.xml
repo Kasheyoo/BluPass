@@ -8,4 +8,15 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="OffWhite">#FAF9F6</color>
+    <color name="blu">#54C8E5</color>
+    <color name="primary">#6200EE</color>
+    <color name="primaryDark">#3700B3</color>
+    <color name="secondary">#03DAC6</color>
+    <color name="primary_blue">#2D6CDF</color>
+    <color name="primary_light">#EAF2FF</color>
+    <color name="background_gray">#F8F9FB</color>
+    <color name="text_dark">#1A1D26</color>
+    <color name="text_gray">#9CA3AF</color>
+    <color name="success_green">#10B981</color>
+
 </resources>

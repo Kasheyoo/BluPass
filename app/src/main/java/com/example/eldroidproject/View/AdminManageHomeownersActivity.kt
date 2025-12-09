@@ -4,82 +4,110 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.widget.Button
-import android.widget.ImageButton
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import com.example.eldroidproject.Model.AdminRepository
 import com.example.eldroidproject.Model.User
+import com.example.eldroidproject.Presenter.AdminManagePresenter
+import com.example.eldroidproject.ProfileActivity
 import com.example.eldroidproject.R
-import com.google.firebase.database.*
+import com.google.android.material.button.MaterialButton
 
-class AdminManageHomeownersActivity : Activity() {
+class AdminManageHomeownersActivity : Activity(), AdminManageView {
 
-    private lateinit var pendingContainer: LinearLayout
-    private lateinit var database: DatabaseReference
+    private lateinit var presenter: AdminManagePresenter
+    private lateinit var pendingContainer: LinearLayout // ✅ Logic matches XML now
+
+    // Navigation
+    private lateinit var btnHome: View
+    private lateinit var manageRequest: View
+    private lateinit var btnProfile: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_admin_manage_homeowners)
 
-        val home = findViewById<ImageButton>(R.id.btnHome)
-        home.setOnClickListener {
-            val intent = Intent(this, AdminDashboardActivity::class.java)
-            startActivity(intent)
-        }
-
+        // 1. Initialize Views
         pendingContainer = findViewById(R.id.pendingContainer)
 
-        database = FirebaseDatabase.getInstance().getReference("users/homeowners")
+        btnHome = findViewById(R.id.btnHome)
+        manageRequest = findViewById(R.id.manageRequest)
+        btnProfile = findViewById(R.id.btnProfile)
 
-        loadPendingHomeowners()
+        // 2. Initialize Presenter
+        presenter = AdminManagePresenter(this, AdminRepository())
+
+        // 3. Load Data
+        presenter.loadPendingUsers()
+
+        // 4. Setup Navigation
+        setupNavigation()
     }
 
-    private fun loadPendingHomeowners() {
-        database.orderByChild("status").equalTo("pending")
-            .addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    pendingContainer.removeAllViews()
-
-                    for (homeSnap in snapshot.children) {
-                        val user = homeSnap.getValue(User::class.java)
-                        val uid = homeSnap.key ?: continue
-
-                        if (user != null) {
-                            addPendingUserView(user, uid)
-                        }
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(
-                        this@AdminManageHomeownersActivity,
-                        "Failed to load pending homeowners: ${error.message}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            })
-    }
-
-    private fun addPendingUserView(user: User, uid: String) {
-        val inflater = LayoutInflater.from(this)
-        val row = inflater.inflate(R.layout.item_pending_user, pendingContainer, false)
-
-        val tvName = row.findViewById<TextView>(R.id.tvPendingName)
-        val btnConfirm = row.findViewById<Button>(R.id.btnConfirmPending)
-
-        tvName.text = user.username
-
-        btnConfirm.setOnClickListener {
-            database.child(uid).child("status").setValue("approved")
-                .addOnSuccessListener {
-                    Toast.makeText(this, "${user.username} approved!", Toast.LENGTH_SHORT).show()
-                }
-                .addOnFailureListener {
-                    Toast.makeText(this, "Failed to approve ${user.username}", Toast.LENGTH_SHORT).show()
-                }
+    private fun setupNavigation() {
+        btnHome.setOnClickListener {
+            startActivity(Intent(this, AdminDashboardActivity::class.java))
+            finish()
         }
+        btnProfile.setOnClickListener {
+            startActivity(Intent(this, AdminProfileActivity::class.java))
+        }
+    }
 
-        pendingContainer.addView(row)
+    // --- View Interface Implementation ---
+
+    override fun showPendingList(users: List<User>) {
+        runOnUiThread {
+            pendingContainer.removeAllViews()
+            val inflater = LayoutInflater.from(this)
+
+            if (users.isEmpty()) {
+                val emptyView = TextView(this)
+                emptyView.text = "No pending requests."
+                emptyView.setPadding(32, 32, 32, 32)
+                pendingContainer.addView(emptyView)
+                return@runOnUiThread
+            }
+
+            for (user in users) {
+                // Inflate the Item Layout
+                val card = inflater.inflate(R.layout.item_homeowner_request, pendingContainer, false)
+
+                val tvName = card.findViewById<TextView>(R.id.tvPendingName)
+                val tvDetails = card.findViewById<TextView>(R.id.tvPendingDetails)
+                val btnApprove = card.findViewById<MaterialButton>(R.id.btnConfirmPending)
+                val btnReject = card.findViewById<MaterialButton>(R.id.btnRejectPending)
+
+                // Bind Data
+                tvName.text = user.email.ifEmpty { "Unknown User" }
+                val lotInfo = if (user.lotNumber.isNullOrEmpty()) "No Lot" else user.lotNumber
+                tvDetails.text = "$lotInfo"
+
+                // Bind Actions (Uses user.uid now that it exists in Model)
+                btnApprove.setOnClickListener {
+                    if (user.uid.isNotEmpty()) presenter.approveUser(user.uid)
+                    else showMessage("Error: User ID missing")
+                }
+
+                btnReject.setOnClickListener {
+                    if (user.uid.isNotEmpty()) presenter.rejectUser(user.uid)
+                    else showMessage("Error: User ID missing")
+                }
+
+                pendingContainer.addView(card)
+            }
+        }
+    }
+
+    override fun refreshList() {
+        presenter.loadPendingUsers()
+    }
+
+    override fun showMessage(message: String) {
+        runOnUiThread {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        }
     }
 }

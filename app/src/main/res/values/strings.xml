@@ -1,4 +1,4 @@
 <resources>
-    <string name="app_name">EldroidProject</string>
+    <string name="app_name">BluPass</string>
     <string name="gate_status">Status: %1$s</string>
 </resources>

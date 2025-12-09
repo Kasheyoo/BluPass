@@ -1,183 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#FFFFFF"
+    android:background="#F8F9FB"
     tools:context=".View.AdminManageHomeownersActivity">
 
-    <!-- Header -->
-    <LinearLayout
+    <View
+        android:id="@+id/headerBg"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="#7DB8E1"
-        android:gravity="center">
+        android:layout_height="170dp"
+        android:background="@drawable/bg_home_header"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Manage Homeowners"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:textColor="#FFFFFF"/>
-    </LinearLayout>
+    <TextView
+        android:id="@+id/pageTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="48dp"
+        android:text="Manage Requests"
+        android:textColor="#FFFFFF"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Scrollable content -->
-    <ScrollView
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Approve or reject registrations"
+        android:textColor="#CCFFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="@id/pageTitle"
+        app:layout_constraintTop_toBottomOf="@id/pageTitle" />
+
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp">
+        android:layout_marginTop="20dp"
+        android:clipToPadding="false"
+        android:paddingBottom="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerBg">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="16dp">
 
-            <!-- Pending Section -->
             <TextView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pending Registrations"
+                android:text="Pending Approvals"
+                android:textColor="#1A1D26"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textSize="16sp"
-                android:textColor="#000000"
-                android:layout_marginBottom="8dp"/>
+                android:layout_marginBottom="12dp"/>
 
             <LinearLayout
                 android:id="@+id/pendingContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/rounded_box"
-                android:padding="10dp">
-
-                <!-- Example pending row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="8dp"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        android:id="@+id/tvPendingName"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:text="Juan Dela Cruz"
-                        android:textColor="#000000"
-                        android:textSize="14sp"/>
-
-                    <Button
-                        android:id="@+id/btnConfirmPending"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Confirm"
-                        android:backgroundTint="#7DB8E1"
-                        android:textColor="#FFFFFF"
-                        android:layout_marginEnd="8dp"/>
-
-                    <Button
-                        android:id="@+id/btnRejectPending"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Reject"
-                        android:backgroundTint="#E57373"
-                        android:textColor="#FFFFFF"/>
-                </LinearLayout>
+                android:orientation="vertical">
             </LinearLayout>
 
-            <!-- Divider -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#DDDDDD"
-                android:layout_marginVertical="16dp"/>
         </LinearLayout>
-    </ScrollView>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
+        android:id="@+id/bottomNav"
         android:layout_width="match_parent"
-        android:layout_height="68dp"
-        android:orientation="horizontal"
-        android:background="#7DB8E1"
+        android:layout_height="70dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/bg_stat_card"
+        android:elevation="16dp"
         android:gravity="center"
-        android:elevation="8dp">
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <!-- Home -->
         <LinearLayout
+            android:id="@+id/btnHome"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageButton
-                android:id="@+id/btnHome"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?selectableItemBackgroundBorderless">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/home_logo"
-                android:background="@android:color/transparent"
-                android:contentDescription="Home"/>
-
+                app:tint="@color/text_gray"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Home"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"/>
+                android:textColor="@color/text_gray"
+                android:textSize="10sp"/>
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/manageRequest"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageButton
-                android:id="@+id/manageRequest"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?selectableItemBackgroundBorderless">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/baseline_fact_check_24"
-                android:background="@android:color/transparent"
-                android:contentDescription="Home"/>
-
+                app:tint="@color/primary_blue"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Manage Request"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"/>
+                android:text="Requests"
+                android:textColor="@color/primary_blue"
+                android:textSize="10sp"
+                android:textStyle="bold"/>
         </LinearLayout>
 
-        <!-- Profile -->
         <LinearLayout
+            android:id="@+id/btnProfile"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:gravity="center">
-
-            <ImageButton
-                android:id="@+id/btnProfile"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?selectableItemBackgroundBorderless">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:src="@drawable/account_logo"
-                android:background="@android:color/transparent"
-                android:contentDescription="Profile"/>
-
+                app:tint="@color/text_gray"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Profile"
-                android:textColor="#FFFFFF"
-                android:textSize="13sp"/>
+                android:textColor="@color/text_gray"
+                android:textSize="10sp"/>
         </LinearLayout>
-
     </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,83 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#FFFFFF"
+    android:background="@color/background_gray"
     tools:context=".HistoryActivity">
 
-    <!-- Header -->
     <View
+        android:id="@+id/headerBg"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:background="#7EB8E6" />
+        android:layout_height="140dp"
+        android:background="@drawable/bg_home_header"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Scrollable content -->
+    <TextView
+        android:id="@+id/pageTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="48dp"
+        android:text="Access Logs"
+        android:textColor="@color/white"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="View past gate activity"
+        android:textColor="#CCFFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="@id/pageTitle"
+        app:layout_constraintTop_toBottomOf="@id/pageTitle" />
+
+    <TextView
+        android:id="@+id/lblRecent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="32dp"
+        android:text="Recent Activity"
+        android:textColor="@color/text_dark"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/headerBg"
+        app:layout_constraintBottom_toTopOf="@id/scrollView"/>
+
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp">
+        android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        android:paddingBottom="90dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/lblRecent">
 
         <LinearLayout
             android:id="@+id/historyContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:orientation="vertical"
+            android:paddingHorizontal="24dp"
+            android:paddingTop="4dp"/>
     </ScrollView>
 
-    <!-- Bottom navigation -->
     <LinearLayout
         android:id="@+id/bottomNav"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:orientation="horizontal"
-        android:background="@drawable/bottom_nav_shape"
+        android:layout_height="70dp"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/bg_stat_card"
+        android:elevation="16dp"
         android:gravity="center"
-        android:paddingHorizontal="20dp">
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageButton
             android:id="@+id/home"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@drawable/home_logo"
-            android:background="@android:color/transparent"
+            android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="Home"
-            android:padding="8dp" />
+            android:src="@drawable/home_logo"
+            app:tint="@color/text_gray" />
 
         <ImageButton
             android:id="@+id/guest_access"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@drawable/key_logo"
-            android:background="@android:color/transparent"
+            android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="Guest Access"
-            android:padding="8dp" />
+            android:src="@drawable/key_logo"
+            app:tint="@color/text_gray" />
 
         <ImageButton
             android:id="@+id/home_history"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@drawable/history_logo"
-            android:background="@android:color/transparent"
+            android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="History"
-            android:padding="8dp" />
+            android:src="@drawable/history_logo"
+            app:tint="@color/primary_blue" />
 
         <ImageButton
             android:id="@+id/profile"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:src="@drawable/account_logo"
-            android:background="@android:color/transparent"
+            android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="Profile"
-            android:padding="8dp" />
+            android:src="@drawable/account_logo"
+            app:tint="@color/text_gray" />
     </LinearLayout>
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

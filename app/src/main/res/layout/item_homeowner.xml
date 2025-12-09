@@ -1,21 +1,64 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:padding="8dp"
-    android:gravity="center_vertical">
+    android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="@color/white"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
 
-    <TextView
-        android:id="@+id/tvHomeownerName"
-        android:layout_width="0dp"
-        android:layout_weight="1"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="#000000"
-        android:textSize="14sp"/>
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
 
-    <ImageView
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:src="@drawable/check_logo"
-        android:contentDescription="Confirmed"/>
-</LinearLayout>
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/account_logo"
+            app:tint="#2D6CDF"
+            android:background="@drawable/circle_shape"
+            android:backgroundTint="#EAF2FF"
+            android:padding="8dp"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="16dp">
+
+            <TextView
+                android:id="@+id/tvHomeownerName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Homeowner Name"
+                android:textStyle="bold"
+                android:textColor="#1A1D26"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/tvHomeownerDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lot 1, Block 5 • +63 912..."
+                android:textColor="#9CA3AF"
+                android:textSize="12sp"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Active"
+            android:textColor="#10B981"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:background="@drawable/bg_input_field"
+            android:paddingHorizontal="8dp"
+            android:paddingVertical="4dp"/>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

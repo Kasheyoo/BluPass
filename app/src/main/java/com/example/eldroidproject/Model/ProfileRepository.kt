@@ -1,17 +1,16 @@
 package com.example.eldroidproject.Model
 
+import android.os.Build
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
-import kotlin.uuid.Uuid
+import com.google.firebase.database.FirebaseDatabase
 
 class ProfileRepository {
 
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseDatabase.getInstance().reference
 
+    // ✅ FIXED: Removed 'uuid' parameter
     fun saveProfileData(
-        username: String,
-        email: String,
         phone: String,
         plate: String,
         model: String,
@@ -19,59 +18,69 @@ class ProfileRepository {
         onFailure: (String) -> Unit
     ) {
         val user = auth.currentUser ?: return onFailure("User not logged in")
-        val userRef = db.child("Users").child(user.uid)
+        val uid = user.uid
 
-        val updates = mapOf(
-            "username" to username,
-            "email" to email,
-            "phone" to phone,
-            "plate" to plate,
-            "model" to model
-        )
+        // Determine if Admin or Homeowner
+        db.child("users").child("homeowners").child(uid).get().addOnSuccessListener { snapshot ->
+            val path = if (snapshot.exists()) "homeowners" else "admins"
+            val userRef = db.child("users").child(path).child(uid)
 
-        userRef.updateChildren(updates)
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { e -> onFailure(e.message ?: "Update failed") }
+            val updates = mapOf<String, Any>(
+                "mobile" to phone,
+                "plateNumber" to plate,
+                "carModel" to model
+            )
+
+            userRef.updateChildren(updates)
+                .addOnSuccessListener { onSuccess() }
+                .addOnFailureListener { e -> onFailure(e.message ?: "Update failed") }
+        }
     }
 
-    fun updatePassword(
-        newPassword: String,
-        onSuccess: () -> Unit,
-        onFailure: (String) -> Unit
-    ) {
+    // ... (keep getProfileData and updatePassword as they are) ...
+    // Note: Ensure getProfileData is the one that fetches 'registeredDevices' as provided previously.
+    fun getProfileData(onSuccess: (Profile) -> Unit, onFailure: (String) -> Unit) {
         val user = auth.currentUser ?: return onFailure("User not logged in")
+        val uid = user.uid
 
-        user.updatePassword(newPassword)
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { e -> onFailure(e.message ?: "Password update failed") }
-    }
+        fun fetchDeviceUuidAndReturn(profileSnapshot: com.google.firebase.database.DataSnapshot) {
+            val deviceName = Build.PRODUCT
+            db.child("registeredDevices").child(deviceName).child("userUUID").get()
+                .addOnSuccessListener { deviceSnap ->
+                    val fetchedUuid = deviceSnap.value?.toString() ?: "Not Registered"
+                    val profile = Profile(
+                        email = user.email ?: "",
+                        phone = profileSnapshot.child("mobile").value?.toString() ?: "",
+                        plateNumber = profileSnapshot.child("plateNumber").value?.toString() ?: "",
+                        carModel = profileSnapshot.child("carModel").value?.toString() ?: "",
+                        uuid = fetchedUuid
+                    )
+                    onSuccess(profile)
+                }
+                .addOnFailureListener {
+                    onSuccess(Profile(
+                        email = user.email ?: "",
+                        phone = profileSnapshot.child("mobile").value?.toString() ?: "",
+                        plateNumber = profileSnapshot.child("plateNumber").value?.toString() ?: "",
+                        carModel = profileSnapshot.child("carModel").value?.toString() ?: ""
+                    ))
+                }
+        }
 
-    fun getProfileData(
-        onSuccess: (Map<String, String>) -> Unit,
-        onFailure: (String) -> Unit
-    ) {
-        val user = auth.currentUser ?: return onFailure("User not logged in")
-        val userRef = db.child("Users").child(user.uid)
-
-        userRef.get()
-            .addOnSuccessListener { snapshot ->
-                if (snapshot.exists()) {
-                    val data = mutableMapOf<String, String>()
-
-                    data["username"] = snapshot.child("username").value?.toString() ?: ""
-                    data["email"] = snapshot.child("email").value?.toString() ?: ""
-                    data["phone"] = snapshot.child("phone").value?.toString() ?: ""
-                    data["plate"] = snapshot.child("plate").value?.toString() ?: ""
-                    data["model"] = snapshot.child("model").value?.toString() ?: ""
-
-                    onSuccess(data)
-                } else {
-                    onFailure("No user data found.")
+        db.child("users").child("homeowners").child(uid).get().addOnSuccessListener { snapshot ->
+            if (snapshot.exists()) fetchDeviceUuidAndReturn(snapshot)
+            else {
+                db.child("users").child("admins").child(uid).get().addOnSuccessListener { adminSnap ->
+                    if (adminSnap.exists()) fetchDeviceUuidAndReturn(adminSnap)
+                    else onFailure("Profile not found.")
                 }
             }
-            .addOnFailureListener { e ->
-                onFailure(e.message ?: "Failed to fetch user data.")
-            }
+        }
     }
 
+    fun updatePassword(newPassword: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+        auth.currentUser?.updatePassword(newPassword)
+            ?.addOnSuccessListener { onSuccess() }
+            ?.addOnFailureListener { e -> onFailure(e.message ?: "Failed") }
+    }
 }

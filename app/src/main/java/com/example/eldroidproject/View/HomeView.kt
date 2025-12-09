@@ -5,6 +5,8 @@ import com.example.eldroidproject.Model.Gate
 interface HomeView {
     interface View {
         fun displayGateStatus(gate: Gate)
+        fun setWelcomeMessage(message: String) // ✅ Required
+
         fun navigateToHome()
         fun navigateToHistory()
         fun navigateToProfile()
@@ -13,7 +15,8 @@ interface HomeView {
 
     interface Presenter {
         fun loadGateStatus()
-        fun onOpenGateClicked()
+        fun loadUserInfo() // ✅ Required
+
         fun onHomeClicked()
         fun onHistoryClicked()
         fun onProfileClicked()

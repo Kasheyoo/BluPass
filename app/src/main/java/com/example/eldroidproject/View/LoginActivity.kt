@@ -1,37 +1,50 @@
 package com.example.eldroidproject
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import android.widget.Toast
-import com.example.eldroidproject.Model.AuthRepository   // ✅ lowercase package
+import com.example.eldroidproject.Model.AuthRepository
 import com.example.eldroidproject.Presenter.LoginPresenter
-import com.example.eldroidproject.View.LoginView
 import com.example.eldroidproject.View.AdminDashboardActivity
+import com.example.eldroidproject.View.ForgotPassword
+import com.example.eldroidproject.View.LoginView
 
 class LoginActivity : Activity(), LoginView {
 
     private lateinit var presenter: LoginPresenter
-    private lateinit var etUsername: EditText
+    private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        etUsername = findViewById(R.id.etUsername)
+        // Initialize Views
+        etEmail = findViewById(R.id.etEmail)
         etPassword = findViewById(R.id.etPassword)
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val btnSignUp = findViewById<Button>(R.id.btnSignUp)
+        val forgotPassword = findViewById<TextView>(R.id.forgotPassword)
 
         presenter = LoginPresenter(this, AuthRepository())
 
+        forgotPassword.setOnClickListener {
+            startActivity(Intent(this, ForgotPassword::class.java))
+        }
+
         btnLogin.setOnClickListener {
-            val username = etUsername.text.toString().trim()
+            val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
-            presenter.loginWithUsername(username, password)
+            presenter.loginWithEmail(email, password)
         }
 
         btnSignUp.setOnClickListener {
@@ -39,20 +52,52 @@ class LoginActivity : Activity(), LoginView {
         }
     }
 
-    // ✅ Approved accounts
+    // --- View Implementations ---
+
     override fun onLoginSuccess(role: String) {
-        Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
-        navigateToDashboard(role)
+        runOnUiThread {
+            Toast.makeText(this, "Login successful!", Toast.LENGTH_SHORT).show()
+            navigateToDashboard(role)
+        }
     }
 
-    // ✅ Pending accounts
+    // SCENARIO: Account Pending -> Show Custom Dialog
     override fun onLoginPending(role: String) {
-        Toast.makeText(this, "Your account is still pending approval.", Toast.LENGTH_LONG).show()
-        navigateToDashboard(role)
+        runOnUiThread {
+            showPendingDialog()
+        }
     }
 
+    // SCENARIO: Any Error (Wrong password, Not registered, etc.) -> Show Toast
     override fun showError(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        runOnUiThread {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // --- Helper for Pending Dialog ---
+    private fun showPendingDialog() {
+        try {
+            if (isFinishing) return
+
+            // Inflate layout (Only need dialog_account_pending.xml now)
+            val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_acount_pending, null)
+
+            val builder = AlertDialog.Builder(this)
+            builder.setView(dialogView)
+            builder.setCancelable(false)
+
+            val alert = builder.create()
+            alert.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            alert.show()
+
+            val btnOk = dialogView.findViewById<Button>(R.id.btnDialogOk)
+            btnOk.setOnClickListener {
+                alert.dismiss()
+            }
+        } catch (e: Exception) {
+            Log.e("LoginActivity", "Error showing dialog: ${e.message}")
+        }
     }
 
     private fun navigateToDashboard(role: String) {

@@ -20,46 +20,64 @@ class ProfilePresenter(
         view.navigateToLogin()
     }
 
-    override fun saveProfileChanges(
-        username: String,
-        email: String,
-        phone: String,
-        plate: String,
-        model: String
-    ) {
-        profileRepo.saveProfileData(
-            username, email, phone, plate, model,
-            onSuccess = { view.showMessage("Profile updated successfully!") },
-            onFailure = { error -> view.showMessage("Error: $error") }
-        )
-    }
-
-    override fun onChangePasswordClicked(newPassword: String) {
-        profileRepo.updatePassword(
-            newPassword,
-            onSuccess = {
-                view.showMessage("Password updated successfully! Please use it next time you log in.")
-            },
-            onFailure = { error ->
-                view.showMessage("Failed to update password: $error")
-            }
-        )
-    }
-
     override fun loadProfileData() {
         profileRepo.getProfileData(
-            onSuccess = { data ->
+            onSuccess = { profile ->
                 view.populateProfileFields(
-                    name = data["username"] ?: "",
-                    email = data["email"] ?: "",
-                    phone = data["phone"] ?: "",
-                    plate = data["plate"] ?: "",
-                    model = data["model"] ?: ""
+                    email = profile.email,
+                    phone = profile.phone,
+                    plate = profile.plateNumber,
+                    model = profile.carModel,
+                    uuid = profile.uuid
                 )
             },
             onFailure = { error ->
                 view.showMessage("Failed to load profile: $error")
             }
+        )
+    }
+
+    // ✅ FIXED: Removed 'uuid' parameter
+    override fun saveProfileChanges(
+        phone: String,
+        plate: String,
+        model: String
+    ) {
+        if (phone.isBlank()) {
+            view.showMessage("Phone number cannot be empty")
+            return
+        }
+
+        // ✅ FIXED: Removed 'uuid' from this call.
+        // Now arguments match (String, String, String, Function, Function)
+        profileRepo.saveProfileData(
+            phone, plate, model,
+            onSuccess = {
+                view.showMessage("Profile updated successfully!")
+                view.onProfileSavedSuccess()
+                loadProfileData()
+            },
+            onFailure = { error -> view.showMessage("Error: $error") }
+        )
+    }
+
+    override fun updatePassword(newPass: String, confirmPass: String) {
+        if (newPass.isEmpty() || confirmPass.isEmpty()) {
+            view.showMessage("Please enter both password fields")
+            return
+        }
+        if (newPass != confirmPass) {
+            view.showMessage("Passwords do not match")
+            return
+        }
+        if (newPass.length < 6) {
+            view.showMessage("Password must be at least 6 characters")
+            return
+        }
+        profileRepo.updatePassword(
+            newPass,
+            onSuccess = { view.onPasswordUpdateSuccess() },
+            onFailure = { error -> view.showMessage("Failed to update password: $error") }
         )
     }
 }

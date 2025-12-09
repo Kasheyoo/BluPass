@@ -7,14 +7,18 @@ interface ProfileView {
         fun navigateToHistory()
         fun navigateToProfile()
         fun navigateToLogin()
-        fun showMessage(message: String)
 
+        fun showMessage(message: String)
+        fun onPasswordUpdateSuccess()
+        fun onProfileSavedSuccess()
+
+        // UUID remains here because we need to DISPLAY it
         fun populateProfileFields(
-            name: String,
             email: String,
             phone: String,
             plate: String,
-            model: String
+            model: String,
+            uuid: String
         )
     }
 
@@ -24,9 +28,15 @@ interface ProfileView {
         fun onHistoryClicked()
         fun onProfileClicked()
         fun onLogoutClicked()
-        // Note: include uuid parameter here
-        fun saveProfileChanges(name: String, email: String, phone: String, plate: String, model: String)
-        fun onChangePasswordClicked(newPassword: String)
         fun loadProfileData()
+
+        // ✅ FIXED: Removed 'uuid' from here (User cannot edit UUID)
+        fun saveProfileChanges(
+            phone: String,
+            plate: String,
+            model: String
+        )
+
+        fun updatePassword(newPass: String, confirmPass: String)
     }
 }

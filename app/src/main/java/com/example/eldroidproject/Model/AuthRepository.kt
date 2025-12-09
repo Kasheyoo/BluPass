@@ -2,7 +2,10 @@ package com.example.eldroidproject.Model
 
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class AuthRepository {
 
@@ -16,19 +19,17 @@ class AuthRepository {
         onSuccess: () -> Unit,
         onFailure: (String) -> Unit
     ) {
+        // 1. Create Account in Firebase Auth
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val uid = auth.currentUser?.uid ?: return@addOnCompleteListener
+
                     val rolePath = if (user.role == "Admin") "admins" else "homeowners"
                     val userRef = database.getReference("users").child(rolePath).child(uid)
 
-                    val finalUser = user.copy(
-                        status = if (user.role == "Admin") "approved" else "pending",
-                        password = password
-                    )
-
-                    userRef.setValue(finalUser)
+                    // 2. Save User Details (No username)
+                    userRef.setValue(user)
                         .addOnSuccessListener { onSuccess() }
                         .addOnFailureListener { e ->
                             onFailure(e.message ?: "Failed to save user data")
@@ -40,62 +41,122 @@ class AuthRepository {
             }
     }
 
-    fun loginUserByUsername(
-        username: String,
+    fun loginUserByEmail(
+        email: String,
         password: String,
         onSuccess: (String) -> Unit,
         onPending: (String) -> Unit,
         onFailure: (String) -> Unit
     ) {
+        // 1. Authenticate with Firebase Auth
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnSuccessListener { authResult ->
+                val uid = authResult.user?.uid
+                if (uid != null) {
+                    checkUserRoleAndStatus(uid, onSuccess, onPending, onFailure)
+                } else {
+                    onFailure("Authentication failed.")
+                }
+            }
+            .addOnFailureListener { e ->
+                // Handles wrong password or user not existing in Auth
+                onFailure(e.message ?: "Login failed.")
+            }
+    }
+
+    private fun checkUserRoleAndStatus(
+        uid: String,
+        onSuccess: (String) -> Unit,
+        onPending: (String) -> Unit,
+        onFailure: (String) -> Unit
+    ) {
         val usersRef = database.getReference("users")
-        Log.d("AuthRepository", "Attempting login for username: $username")
 
-        fun checkSnapshot(snapshot: com.google.firebase.database.DataSnapshot, roleType: String) {
-            for (child in snapshot.children) {
-                val storedUsername = child.child("username").value as? String ?: ""
-                val storedPassword = child.child("password").value as? String ?: ""
-                val status = child.child("status").value as? String ?: ""
-                val role = child.child("role").value as? String ?: roleType
+        fun handleLogin(status: String, role: String) {
+            if (status == "approved") {
+                onSuccess(role)
+            } else {
+                auth.signOut()
+                onPending(role) // Shows Dialog
+            }
+        }
 
-                Log.d("AuthRepository", "Found user: username=$storedUsername, password=$storedPassword, status=$status, role=$role")
-
-                if (storedUsername == username && storedPassword == password) {
-                    if (status == "approved") {
-                        onSuccess(role)
-                        return
+        // 2. Check Admin
+        usersRef.child("admins").child(uid).get().addOnSuccessListener { snapshot ->
+            if (snapshot.exists()) {
+                val status = snapshot.child("status").value.toString()
+                handleLogin(status, "Admin")
+            } else {
+                // 3. Check Homeowner
+                usersRef.child("homeowners").child(uid).get().addOnSuccessListener { homeSnap ->
+                    if (homeSnap.exists()) {
+                        val status = homeSnap.child("status").value.toString()
+                        handleLogin(status, "Homeowner")
                     } else {
-                        onPending(role)
-                        return
+                        // 4. User in Auth but NOT in Database -> Treat as Error (Toast)
+                        auth.signOut()
+                        onFailure("User profile not found in database.")
+                    }
+                }.addOnFailureListener {
+                    auth.signOut()
+                    onFailure("Database error.")
+                }
+            }
+        }.addOnFailureListener {
+            auth.signOut()
+            onFailure("Database error.")
+        }
+    }
+
+    fun getHomeowners(callback: (List<User>) -> Unit) {
+        database.getReference("users").child("homeowners")
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val homeowners = snapshot.children.map { uuid ->
+                        val cred = uuid.child("credentials")
+                        User(
+                            email = cred.child("email").getValue(String::class.java) ?: "",
+                            mobile = cred.child("mobile").getValue(String::class.java) ?: "",
+                            lotNumber = cred.child("lotNumber").getValue(String::class.java) ?: "",
+                            role = cred.child("role").getValue(String::class.java) ?: "homeowner",
+                            status = cred.child("status").getValue(String::class.java) ?: ""
+                        )
+                    }
+                    callback(homeowners)
+                }
+                override fun onCancelled(error: DatabaseError) {
+                    callback(emptyList())
+                }
+            })
+    }
+
+    fun fetchLotNumber(onResult: (String) -> Unit) {
+        val uid = auth.currentUser?.uid
+
+        if (uid == null) {
+            onResult("Welcome")
+            return
+        }
+
+        val dbRef = database.reference
+
+        // 1. Check Homeowners
+        dbRef.child("users").child("homeowners").child(uid).get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.exists()) {
+                    // Get Lot Number
+                    val lot = snapshot.child("lotNumber").value?.toString() ?: "Homeowner"
+                    onResult(lot)
+                } else {
+                    // 2. Check Admins if not a homeowner
+                    dbRef.child("users").child("admins").child(uid).get().addOnSuccessListener { adminSnap ->
+                        val name = adminSnap.child("username").value?.toString() ?: "Admin"
+                        onResult(name)
                     }
                 }
             }
-            onFailure("Invalid credentials.")
-        }
-
-        usersRef.child("admins").orderByChild("username").equalTo(username).get()
-            .addOnSuccessListener { snapshot ->
-                Log.d("AuthRepository", "Admin snapshot exists: ${snapshot.exists()}")
-                if (snapshot.exists()) {
-                    checkSnapshot(snapshot, "Admin")
-                } else {
-                    usersRef.child("homeowners").orderByChild("username").equalTo(username).get()
-                        .addOnSuccessListener { homeSnap ->
-                            Log.d("AuthRepository", "Homeowner snapshot exists: ${homeSnap.exists()}")
-                            if (homeSnap.exists()) {
-                                checkSnapshot(homeSnap, "Homeowner")
-                            } else {
-                                onFailure("Username not found.")
-                            }
-                        }
-                        .addOnFailureListener {
-                            Log.e("AuthRepository", "Homeowner query failed", it)
-                            onFailure("Failed to verify homeowner username.")
-                        }
-                }
-            }
             .addOnFailureListener {
-                Log.e("AuthRepository", "Admin query failed", it)
-                onFailure("Failed to verify admin username.")
+                onResult("Welcome")
             }
     }
 

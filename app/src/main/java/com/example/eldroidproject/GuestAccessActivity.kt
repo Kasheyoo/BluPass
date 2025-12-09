@@ -1,215 +1,176 @@
 package com.example.eldroidproject
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.Gravity
+import android.util.Log
 import android.view.View
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
-import com.google.firebase.database.*
+import androidx.cardview.widget.CardView
+import com.example.eldroidproject.Model.Guest
+import com.example.eldroidproject.Model.GuestRepository
+import com.example.eldroidproject.Presenter.GuestAccessPresenter
+import com.example.eldroidproject.View.GuestAccessView
 
-class GuestAccessActivity : AppCompatActivity() {
+class GuestAccessActivity : Activity(), GuestAccessView.View {
 
+    private lateinit var presenter: GuestAccessView.Presenter
+
+    // --- UI Components ---
     private lateinit var inviteButton: Button
-    private lateinit var guestListContainer: LinearLayout
-    private lateinit var codeOverlay: LinearLayout
+    private lateinit var codeOverlay: FrameLayout
+    private lateinit var codeCard: CardView
+    private lateinit var guestNameInput: EditText
     private lateinit var generatedCodeText: TextView
     private lateinit var okButton: Button
-    private lateinit var guestNameInput: EditText
+    private lateinit var guestListContainer: LinearLayout
 
+    // Bottom Navigation
     private lateinit var homeButton: ImageButton
-    private lateinit var guestAccessButton: ImageButton
     private lateinit var historyButton: ImageButton
     private lateinit var profileButton: ImageButton
-
-    private lateinit var database: DatabaseReference
+    private lateinit var guestAccessButton: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_guest_access)
 
-        // 🔹 Firebase reference
-        database = FirebaseDatabase.getInstance().getReference("Guest")
+        try {
+            // 1. Initialize Presenter
+            presenter = GuestAccessPresenter(this, GuestRepository())
 
-        // 🔹 Initialize UI components
-        inviteButton = findViewById(R.id.inviteButton)
-        guestListContainer = findViewById(R.id.guestListContainer)
-        codeOverlay = findViewById(R.id.codeOverlay)
-        generatedCodeText = findViewById(R.id.generatedCodeText)
-        okButton = findViewById(R.id.okButton)
-        guestNameInput = findViewById(R.id.guestNameInput)
+            // 2. Initialize Views
+            inviteButton = findViewById(R.id.inviteButton)
+            codeOverlay = findViewById(R.id.codeOverlay)
+            codeCard = findViewById(R.id.codeCard)
 
-        homeButton = findViewById(R.id.home)
-        guestAccessButton = findViewById(R.id.guest_access)
-        historyButton = findViewById(R.id.home_history)
-        profileButton = findViewById(R.id.profile)
+            // ✅ CRITICAL FIX: Changed R.id.tvGuestName -> R.id.guestNameInput
+            guestNameInput = findViewById(R.id.tvGuestName)
 
-        // 🔹 Navigation setup
-        homeButton.setOnClickListener {
-            startActivity(Intent(this, HomeActivity::class.java))
-            finish()
-        }
-        guestAccessButton.setOnClickListener {
-            startActivity(Intent(this, GuestAccessActivity::class.java))
-            finish()
-        }
-        historyButton.setOnClickListener {
-            startActivity(Intent(this, HistoryActivity::class.java))
-            finish()
-        }
-        profileButton.setOnClickListener {
-            startActivity(Intent(this, ProfileActivity::class.java))
-            finish()
-        }
+            // ✅ CRITICAL FIX: Changed R.id.tvGuestCode -> R.id.generatedCodeText
+            generatedCodeText = findViewById(R.id.tvGuestCode)
 
-        // 🔹 Show overlay and generate random code
-        inviteButton.setOnClickListener {
-            codeOverlay.visibility = View.VISIBLE
-            val code = (100000..999999).random().toString()
-            generatedCodeText.text = code
-        }
+            okButton = findViewById(R.id.okButton)
+            guestListContainer = findViewById(R.id.guestListContainer)
 
-        // 🔹 Save guest to Firebase
-        // 🔹 Save guest to Firebase
-        okButton.setOnClickListener {
-            val guestName = guestNameInput.text.toString().trim()
-            val code = generatedCodeText.text.toString()
+            // Bottom Nav Views
+            homeButton = findViewById(R.id.home)
+            historyButton = findViewById(R.id.home_history)
+            profileButton = findViewById(R.id.profile)
+            guestAccessButton = findViewById(R.id.guest_access)
 
-            if (guestName.isEmpty()) {
-                Toast.makeText(this, "Please enter guest name", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+            // 3. Navigation Listeners
+            homeButton.setOnClickListener { presenter.onHomeClicked() }
+            historyButton.setOnClickListener { presenter.onHistoryClicked() }
+            profileButton.setOnClickListener { presenter.onProfileClicked() }
+            guestAccessButton.setOnClickListener { presenter.onGuestAccessClicked() }
+
+            // 4. Load Initial Data
+            presenter.loadGuests()
+
+            // --- POPUP LOGIC ---
+
+            // A. Open Popup
+            inviteButton.setOnClickListener {
+                resetPopupState()
+                codeOverlay.visibility = View.VISIBLE
             }
 
-            val guestData = mapOf(
-                "name" to guestName,
-                "code" to code,
-                "status" to "Active"
-            )
+            // B. Close Popup
+            codeOverlay.setOnClickListener {
+                codeOverlay.visibility = View.GONE
+            }
+            codeCard.setOnClickListener { /* Consume click */ }
 
-            val guestId = database.push().key
-            if (guestId != null) {
-                database.child(guestId).setValue(guestData)
-                    .addOnSuccessListener {
-                        Toast.makeText(this, "Guest saved to Firebase", Toast.LENGTH_SHORT).show()
-                        addGuestCard(guestName, code, "Active")
+            // C. Generate / Close Logic
+            okButton.setOnClickListener {
+                try {
+                    val name = guestNameInput.text.toString().trim()
+                    val currentCode = generatedCodeText.text.toString()
 
-                        // ✅ NEW: Save this event to "History"
-                        val historyRef = FirebaseDatabase.getInstance().getReference("History")
-                        val historyId = historyRef.push().key
-                        val timestamp = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())
-
-                        val historyRecord = mapOf(
-                            "name" to guestName,
-                            "type" to "Entry", // You can change this to "Invite" or "Code Generated"
-                            "vehicle" to "N/A",
-                            "timestamp" to timestamp,
-                            "status" to "Active"
-                        )
-
-                        if (historyId != null) {
-                            historyRef.child(historyId).setValue(historyRecord)
+                    if (currentCode == "000000") {
+                        // PHASE 1: Generate Code
+                        if (name.isNotEmpty()) {
+                            presenter.generateCode(name)
+                        } else {
+                            Toast.makeText(this, "Please enter a guest name", Toast.LENGTH_SHORT).show()
                         }
-
-                        // ✅ Reset overlay
-                        guestNameInput.text.clear()
+                    } else {
+                        // PHASE 2: Clicked "Done" -> Close Popup
                         codeOverlay.visibility = View.GONE
-                        codeOverlay.isClickable = false
-                        codeOverlay.isFocusable = false
+                        presenter.loadGuests() // This triggers the list refresh
                     }
-                    .addOnFailureListener {
-                        Toast.makeText(this, "Failed: ${it.message}", Toast.LENGTH_SHORT).show()
-                    }
-            }
-        }
-
-
-        // 🔹 Load guests on app start
-        loadGuestsFromFirebase()
-    }
-
-    // ✅ Loads all guests from Firebase
-    private fun loadGuestsFromFirebase() {
-        database.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                guestListContainer.removeAllViews() // clear before reloading
-                for (guestSnapshot in snapshot.children) {
-                    val name = guestSnapshot.child("name").getValue(String::class.java) ?: "Unknown"
-                    val code = guestSnapshot.child("code").getValue(String::class.java) ?: "N/A"
-                    val status = guestSnapshot.child("status").getValue(String::class.java) ?: "Active"
-                    addGuestCard(name, code, status)
+                } catch (e: Exception) {
+                    Log.e("GuestActivity", "Error in button click: ${e.message}")
+                    Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
+        } catch (e: Exception) {
+            Log.e("GuestActivity", "Error in onCreate: ${e.message}")
+        }
+    }
 
-            override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(
-                    this@GuestAccessActivity,
-                    "Failed to load guests: ${error.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
+    private fun resetPopupState() {
+        guestNameInput.isEnabled = true
+        guestNameInput.setText("")
+        generatedCodeText.text = "000000"
+        // Use ContextCompat or simple getColor safely
+        generatedCodeText.setTextColor(getColor(R.color.text_gray))
+        okButton.text = "Generate Code"
+    }
+
+    // --- MVP Interface Implementation ---
+
+    override fun onCodeGenerated(code: String) {
+        // Run on UI Thread to prevent crashes
+        runOnUiThread {
+            generatedCodeText.text = code
+            generatedCodeText.setTextColor(getColor(R.color.success_green))
+            guestNameInput.isEnabled = false
+            okButton.text = "Done / Close"
+        }
+    }
+
+    override fun displayGuests(guests: List<Guest>) {
+        runOnUiThread {
+            try {
+                guestListContainer.removeAllViews()
+
+                for (guest in guests) {
+                    val view = layoutInflater.inflate(R.layout.item_guest, guestListContainer, false)
+
+                    val tvName = view.findViewById<TextView>(R.id.tvGuestName)
+                    val tvCode = view.findViewById<TextView>(R.id.tvGuestCode)
+
+                    if (tvName != null) tvName.text = guest.name
+                    if (tvCode != null) tvCode.text = "Code: ${guest.code}"
+
+                    guestListContainer.addView(view)
+                }
+            } catch (e: Exception) {
+                Log.e("GuestActivity", "Error displaying guests: ${e.message}")
             }
-        })
+        }
     }
 
-    // ✅ Adds a guest card dynamically to UI
-    private fun addGuestCard(name: String, code: String, status: String) {
-        val guestCard = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setBackgroundResource(R.drawable.guest_card)
-            setPadding(12, 12, 12, 12)
-            val params = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            params.setMargins(0, 0, 0, 8)
-            layoutParams = params
+    override fun showError(message: String) {
+        runOnUiThread {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
-
-        val initials = name.split(" ")
-            .mapNotNull { it.firstOrNull()?.uppercase() }
-            .joinToString("")
-        val avatar = TextView(this).apply {
-            text = initials.take(2)
-            textSize = 16f
-            setTextColor(android.graphics.Color.WHITE)
-            setTypeface(null, android.graphics.Typeface.BOLD)
-            gravity = Gravity.CENTER
-            width = 100
-            height = 100
-            setBackgroundResource(R.drawable.circle_avatar)
-        }
-
-        val infoLayout = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            val params = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-            params.setMargins(16, 0, 0, 0)
-            layoutParams = params
-        }
-
-        val nameText = TextView(this).apply {
-            text = name
-            textSize = 14f
-            setTypeface(null, android.graphics.Typeface.BOLD)
-        }
-
-        val codeText = TextView(this).apply {
-            text = "Code: $code"
-            textSize = 12f
-            setTextColor(android.graphics.Color.DKGRAY)
-        }
-
-        val statusText = TextView(this).apply {
-            text = "Status: $status"
-            textSize = 12f
-            setTextColor(android.graphics.Color.parseColor("#5CB85C"))
-        }
-
-        infoLayout.addView(nameText)
-        infoLayout.addView(codeText)
-        infoLayout.addView(statusText)
-
-        guestCard.addView(avatar)
-        guestCard.addView(infoLayout)
-
-        guestListContainer.addView(guestCard)
     }
+
+    // --- Navigation ---
+    override fun navigateToHome() {
+        startActivity(Intent(this, HomeActivity::class.java))
+        finish()
+    }
+    override fun navigateToHistory() {
+        startActivity(Intent(this, HistoryActivity::class.java))
+        finish()
+    }
+    override fun navigateToProfile() {
+        startActivity(Intent(this, ProfileActivity::class.java))
+        finish()
+    }
+    override fun navigateToGuestAccess() { }
 }
