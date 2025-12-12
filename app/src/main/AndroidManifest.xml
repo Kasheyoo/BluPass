@@ -70,10 +70,6 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".HistoryActivity"
-            android:exported="false"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".GuestAccessActivity"
             android:exported="false"
             android:screenOrientation="portrait" />
