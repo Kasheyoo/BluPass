@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F8F9FB"
-    tools:context=".ProfileActivity">
+    tools:context=".View.AdminProfileActivity">
 
     <View
         android:id="@+id/headerBg"
@@ -20,7 +20,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        android:text="My Profile"
+        android:text="Admin Profile"
         android:textColor="#FFFFFF"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -61,7 +61,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="24dp">
 
@@ -71,10 +71,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:gravity="center"
-                android:text="Warren@gmail.com"
+                android:text="admin@email.com"
                 android:textColor="@color/black"
                 android:textStyle="bold"
-                android:textSize="20sp" />
+                android:textSize="18sp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -112,33 +112,10 @@
                         android:background="@android:color/transparent"
                         android:inputType="phone"
                         android:paddingVertical="8dp"
-                        android:text="+63 912 345 6789"
+                        android:text="+63 900 000 0000"
                         android:textColor="#1A1D26"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginVertical="8dp"
-                        android:background="#F3F4F6" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="BLE UUID"
-                        android:textColor="#9CA3AF"
-                        android:textSize="12sp" />
-
-                    <EditText
-                        android:id="@+id/bleUUID"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:enabled="false"
-                        android:paddingVertical="8dp"
-                        android:text="ASDFGC123456"
-                        android:textColor="#1A1D26"
-                        android:textStyle="bold" />
+                        android:textStyle="bold"
+                        android:enabled="false"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -147,7 +124,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="8dp"
-                android:text="Vehicle Details"
+                android:text="Security"
                 android:textColor="#1A1D26"
                 android:textStyle="bold" />
 
@@ -163,98 +140,6 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:padding="16dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Plate Number"
-                        android:textColor="#9CA3AF"
-                        android:textSize="12sp" />
-
-                    <EditText
-                        android:id="@+id/profilePlate"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:paddingVertical="8dp"
-                        android:text="ABC 123"
-                        android:textColor="#1A1D26"
-                        android:textStyle="bold" />
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginVertical="8dp"
-                        android:background="#F3F4F6" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Car Model"
-                        android:textColor="#9CA3AF"
-                        android:textSize="12sp" />
-
-                    <EditText
-                        android:id="@+id/profileCar"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@android:color/transparent"
-                        android:paddingVertical="8dp"
-                        android:text="2022 Toyota Camry"
-                        android:textColor="#1A1D26"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="8dp"
-                android:text="Account Settings"
-                android:textColor="#1A1D26"
-                android:textStyle="bold" />
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:cardBackgroundColor="#FFFFFF"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="2dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Push Notifications"
-                            android:textColor="#1A1D26"
-                            android:textSize="14sp" />
-
-                        <Switch
-                            android:id="@+id/switchPush"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:checked="true"
-                            tools:ignore="UseSwitchCompatOrMaterialXml" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_marginVertical="12dp"
-                        android:background="#F3F4F6" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -329,7 +214,6 @@
                             app:cornerRadius="12dp"
                             app:elevation="2dp" />
                     </LinearLayout>
-
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
@@ -363,9 +247,7 @@
                 android:textStyle="bold"
                 android:textAllCaps="false"
                 app:cornerRadius="16dp"
-                app:elevation="0dp"
-                app:strokeColor="#FFCDD2"
-                app:strokeWidth="1dp"/>
+                app:elevation="0dp" />
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -383,37 +265,98 @@
         android:paddingHorizontal="16dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <ImageButton
-            android:id="@+id/home"
+        <LinearLayout
+            android:id="@+id/btnHome"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="?selectableItemBackgroundBorderless"
-            android:contentDescription="Home"
-            android:src="@drawable/home_logo"
-            app:tint="@color/text_gray" />
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?selectableItemBackgroundBorderless">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/home_logo_2"
+                app:tint="@color/text_gray"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Home"
+                android:textColor="@color/text_gray"
+                android:textSize="10sp"/>
+        </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/guest_access"
+        <LinearLayout
+            android:id="@+id/manageRequest"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="?selectableItemBackgroundBorderless"
-            android:contentDescription="Guest Access"
-            android:src="@drawable/key_logo_3"
-            app:tint="@color/text_gray" />
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?selectableItemBackgroundBorderless">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/baseline_fact_check_24_3"
+                app:tint="@color/text_gray"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Requests"
+                android:textColor="@color/text_gray"
+                android:textSize="10sp"/>
+        </LinearLayout>
 
-        y
-
-        <ImageButton
-            android:id="@+id/profile"
+        <LinearLayout
+            android:id="@+id/btnHistory"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:background="?selectableItemBackgroundBorderless"
-            android:contentDescription="Profile"
-            android:src="@drawable/account_logo"
-            app:tint="@color/primary_blue" />
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?selectableItemBackgroundBorderless">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/history_logo"
+                app:tint="@color/text_gray"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="History"
+                android:textColor="@color/text_gray"
+                android:textSize="10sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/btnProfile"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?selectableItemBackgroundBorderless">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/account_logo_2"
+                app:tint="@color/primary_blue"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Profile"
+                android:textColor="@color/primary_blue"
+                android:textSize="10sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

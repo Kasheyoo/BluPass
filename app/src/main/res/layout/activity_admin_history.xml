@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F8F9FB"
-    tools:context=".View.AdminManageHomeownersActivity">
+    tools:context=".View.AdminHistoryActivity">
 
     <View
         android:id="@+id/headerBg"
@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="48dp"
-        android:text="Manage Requests"
+        android:text="Gate Logs"
         android:textColor="#FFFFFF"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -32,16 +32,29 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Approve or reject registrations"
+        android:text="Real-time access history"
         android:textColor="#CCFFFFFF"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="@id/pageTitle"
         app:layout_constraintTop_toBottomOf="@id/pageTitle" />
 
+    <ImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/circle_shape"
+        android:backgroundTint="#33FFFFFF"
+        android:padding="10dp"
+        android:src="@drawable/history_logo"
+        app:tint="@color/white"
+        app:layout_constraintBottom_toBottomOf="@id/pageTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/pageTitle" />
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="24dp"
         android:clipToPadding="false"
         android:paddingBottom="100dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -51,23 +64,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:paddingHorizontal="24dp"
-            android:paddingTop="16dp">
+            android:paddingHorizontal="24dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pending Approvals"
+                android:text="Recent Activity"
                 android:textColor="#1A1D26"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="12dp"/>
 
             <LinearLayout
-                android:id="@+id/pendingContainer"
+                android:id="@+id/historyContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
+
             </LinearLayout>
 
         </LinearLayout>
@@ -119,21 +132,17 @@
             android:clickable="true"
             android:focusable="true"
             android:background="?selectableItemBackgroundBorderless">
-
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/baseline_fact_check_24_2"
-                app:tint="@color/primary_blue"/>
-
+                android:src="@drawable/baseline_fact_check_24_3"
+                app:tint="@color/text_gray"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Requests"
-                android:textColor="@color/primary_blue"
-                android:textSize="10sp"
-                android:textStyle="bold"/>
-
+                android:textColor="@color/text_gray"
+                android:textSize="10sp"/>
         </LinearLayout>
 
         <LinearLayout
@@ -150,14 +159,14 @@
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/history_logo"
-                app:tint="@color/text_gray"/>
+                android:src="@drawable/baseline_history_24_2"
+                app:tint="@color/primary_blue"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="History"
-                android:textColor="@color/text_gray"
+                android:textColor="@color/primary_blue"
                 android:textSize="10sp"
                 android:textStyle="bold"/>
         </LinearLayout>
@@ -184,5 +193,7 @@
                 android:textColor="@color/text_gray"
                 android:textSize="10sp"/>
         </LinearLayout>
+
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

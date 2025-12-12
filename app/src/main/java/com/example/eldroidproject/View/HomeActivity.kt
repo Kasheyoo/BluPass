@@ -40,7 +40,6 @@ class HomeActivity : Activity(), HomeView.View {
     private lateinit var pulseRing: View
 
     // Navigation Buttons
-    private lateinit var historyButton: ImageButton
     private lateinit var profileButton: ImageButton
     private lateinit var homeButton: ImageButton
     private lateinit var guestAccessButton: ImageButton
@@ -63,14 +62,12 @@ class HomeActivity : Activity(), HomeView.View {
             pulseRing = findViewById(R.id.pulseRing)
             tvUserName = findViewById(R.id.tvUserName)
 
-            historyButton = findViewById(R.id.home_history)
             profileButton = findViewById(R.id.profile)
             homeButton = findViewById(R.id.home)
             guestAccessButton = findViewById(R.id.guest_access)
 
             // 3. Navigation Listeners
             homeButton.setOnClickListener { presenter.onHomeClicked() }
-            historyButton.setOnClickListener { presenter.onHistoryClicked() }
             profileButton.setOnClickListener { presenter.onProfileClicked() }
             guestAccessButton.setOnClickListener { presenter.onGuestAccessClicked() }
 
@@ -99,12 +96,8 @@ class HomeActivity : Activity(), HomeView.View {
 
         override fun onStartFailure(errorCode: Int) {
             super.onStartFailure(errorCode)
-            // ✅ DEBUG CHANGE: I commented this out.
-            // If BLE fails, we keep animating so you know the UI is working.
-            // stopPulseAnimation()
 
             runOnUiThread {
-                // Show the specific error code so we know WHY it failed
                 val errorMsg = when(errorCode) {
                     ADVERTISE_FAILED_DATA_TOO_LARGE -> "Data too large"
                     ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> "BLE Advertising not supported"
@@ -120,9 +113,9 @@ class HomeActivity : Activity(), HomeView.View {
 
     override fun onResume() {
         super.onResume()
-        // Always try to animate on resume to ensure UI looks alive
         startPulseAnimation()
 
+        // Check perms helper just to be safe before calling startAdvertising
         if (hasPermissions()) {
             startAdvertising()
         }
@@ -139,12 +132,11 @@ class HomeActivity : Activity(), HomeView.View {
         stopPulseAnimation()
     }
 
-    // --- Animation Logic (FIXED) ---
+    // --- Animation Logic ---
 
     private fun startPulseAnimation() {
         runOnUiThread {
             try {
-                // ✅ FORCE the animation. No "if visible" checks.
                 pulseRing.visibility = View.VISIBLE
                 val pulseAnimation = AnimationUtils.loadAnimation(this, R.anim.pulse_animation)
                 pulseRing.startAnimation(pulseAnimation)
@@ -161,33 +153,28 @@ class HomeActivity : Activity(), HomeView.View {
         }
     }
 
-    // --- Bluetooth Logic ---
+    // --- Bluetooth Logic (UPDATED) ---
 
     private fun startAdvertising() {
         val adapter = bluetoothAdapter ?: return
 
-        // 1. Explicit Permission Check to satisfy Lint and prevent crash
+        // Check Permissions
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED ||
-                ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
-            ) {
-                return
-            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_ADVERTISE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED
+            ) return
         }
 
-        // 2. Enable Check
+        // Enable Bluetooth if off
         if (!adapter.isEnabled) {
-            try {
-                startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
-            } catch (e: SecurityException) { e.printStackTrace() }
+            startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
             return
         }
 
         try {
             advertiser = adapter.bluetoothLeAdvertiser
             if (advertiser == null) {
-                // Device doesn't support advertising, but we keep animation running
-                statusInfoText.text = "BLE Advertising hardware missing."
+                Toast.makeText(this, "BLE Advertising not supported", Toast.LENGTH_SHORT).show()
                 return
             }
 
@@ -204,34 +191,45 @@ class HomeActivity : Activity(), HomeView.View {
 
             advertiser?.startAdvertising(settings, data, advertiseCallback)
 
-            registerDeviceInFirebase()
+            // Get Device Name locally for Firebase key
+            val bluetoothManager = getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
+            val currentAdapter = bluetoothManager.adapter
+            val deviceName = currentAdapter?.name ?: "UnknownDevice"
 
-        } catch (e: Exception) {
-            Log.e("HomeActivity", "Error starting advertising: ${e.message}")
-        }
-    }
+            // ✅ Feedback
+            Toast.makeText(this, "Started advertising UUID: ${SERVICE_UUID.uuid}", Toast.LENGTH_SHORT).show()
 
-    private fun registerDeviceInFirebase() {
-        try {
+            // ✅ Store advertised UUID + timestamp in Firebase
             val user = FirebaseAuth.getInstance().currentUser
-            val deviceName = Build.MODEL ?: "UnknownDevice" // Safe Device Name
-
             if (user != null) {
+                // Sanitize device name for Firebase path (no '.' or '#')
                 val safeDeviceName = deviceName.replace(".", "_").replace("#", "_")
                 val dbRef = FirebaseDatabase.getInstance().getReference("registeredDevices").child(safeDeviceName)
+
                 val advertisedInfo = mapOf(
                     "advertisedUuid" to SERVICE_UUID.uuid.toString(),
                     "userUUID" to user.uid,
                     "advertisedAt" to System.currentTimeMillis()
                 )
+
                 dbRef.updateChildren(advertisedInfo)
+                    .addOnSuccessListener {
+                        Toast.makeText(this, "UUID stored in Firebase", Toast.LENGTH_SHORT).show()
+                    }
+                    .addOnFailureListener {
+                        Toast.makeText(this, "Failed to store UUID", Toast.LENGTH_SHORT).show()
+                    }
             }
+
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+            Toast.makeText(this, "Bluetooth permission denied", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            Log.e("HomeActivity", "Firebase Error: ${e.message}")
+            Log.e("HomeActivity", "Error starting advertising: ${e.message}")
         }
     }
 
-    // --- Permission Helper ---
+    // --- Permission Helpers ---
 
     private fun hasPermissions(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -281,7 +279,7 @@ class HomeActivity : Activity(), HomeView.View {
 
     override fun displayGateStatus(gate: Gate) { }
     override fun navigateToHome() { }
-    override fun navigateToHistory() { startActivity(Intent(this, HistoryActivity::class.java)); finish() }
+    override fun navigateToHistory() { /* Removed */ }
     override fun navigateToProfile() { startActivity(Intent(this, ProfileActivity::class.java)); finish() }
     override fun navigateToGuestAccess() { startActivity(Intent(this, GuestAccessActivity::class.java)); finish() }
 }

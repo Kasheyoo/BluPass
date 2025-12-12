@@ -24,6 +24,7 @@ class AdminManageHomeownersActivity : Activity(), AdminManageView {
     private lateinit var btnHome: View
     private lateinit var manageRequest: View
     private lateinit var btnProfile: View
+    private lateinit var btnHistory: View
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +36,7 @@ class AdminManageHomeownersActivity : Activity(), AdminManageView {
         btnHome = findViewById(R.id.btnHome)
         manageRequest = findViewById(R.id.manageRequest)
         btnProfile = findViewById(R.id.btnProfile)
+        btnHistory = findViewById(R.id.btnHistory)
 
         // 2. Initialize Presenter
         presenter = AdminManagePresenter(this, AdminRepository())
@@ -51,6 +53,12 @@ class AdminManageHomeownersActivity : Activity(), AdminManageView {
             startActivity(Intent(this, AdminDashboardActivity::class.java))
             finish()
         }
+
+        btnHistory.setOnClickListener {
+            startActivity(Intent(this, AdminHistoryActivity::class.java))
+            finish()
+        }
+
         btnProfile.setOnClickListener {
             startActivity(Intent(this, AdminProfileActivity::class.java))
         }

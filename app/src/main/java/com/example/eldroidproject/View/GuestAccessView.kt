@@ -1,16 +1,12 @@
 package com.example.eldroidproject.View
-
 import com.example.eldroidproject.Model.Guest
 
 interface GuestAccessView {
-
     interface View {
-        // UI Updates
-        fun displayGuests(guests: List<Guest>) // Updates the list
-        fun onCodeGenerated(code: String)      // Updates the popup with the new code
-        fun showError(message: String)         // Shows Toasts for errors
-
-        // Navigation
+        fun onCodeGenerated(code: String)
+        fun displayGuests(guests: List<Guest>)
+        fun showError(message: String)
+        // Navigation methods...
         fun navigateToHome()
         fun navigateToHistory()
         fun navigateToProfile()
@@ -18,11 +14,9 @@ interface GuestAccessView {
     }
 
     interface Presenter {
-        // Logic
+        fun generateCode(guestName: String, vehicle: String) // ✅ Update signature
         fun loadGuests()
-        fun generateCode(guestName: String) // Logic to create a new invite
-
-        // Navigation Logic
+        // Navigation methods...
         fun onHomeClicked()
         fun onHistoryClicked()
         fun onProfileClicked()

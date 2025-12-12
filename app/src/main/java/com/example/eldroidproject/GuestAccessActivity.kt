@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
 import com.example.eldroidproject.Model.Guest
 import com.example.eldroidproject.Model.GuestRepository
 import com.example.eldroidproject.Presenter.GuestAccessPresenter
@@ -20,14 +21,17 @@ class GuestAccessActivity : Activity(), GuestAccessView.View {
     private lateinit var inviteButton: Button
     private lateinit var codeOverlay: FrameLayout
     private lateinit var codeCard: CardView
+
+    // Popup Inputs
     private lateinit var guestNameInput: EditText
+    private lateinit var guestVehicleInput: EditText // ✅ Added Vehicle Input
     private lateinit var generatedCodeText: TextView
     private lateinit var okButton: Button
+
     private lateinit var guestListContainer: LinearLayout
 
-    // Bottom Navigation
+    // Bottom Navigation (History Removed)
     private lateinit var homeButton: ImageButton
-    private lateinit var historyButton: ImageButton
     private lateinit var profileButton: ImageButton
     private lateinit var guestAccessButton: ImageButton
 
@@ -43,27 +47,23 @@ class GuestAccessActivity : Activity(), GuestAccessView.View {
             inviteButton = findViewById(R.id.inviteButton)
             codeOverlay = findViewById(R.id.codeOverlay)
             codeCard = findViewById(R.id.codeCard)
-
-            // ✅ CRITICAL FIX: Changed R.id.tvGuestName -> R.id.guestNameInput
-            guestNameInput = findViewById(R.id.tvGuestName)
-
-            // ✅ CRITICAL FIX: Changed R.id.tvGuestCode -> R.id.generatedCodeText
-            generatedCodeText = findViewById(R.id.tvGuestCode)
-
-            okButton = findViewById(R.id.okButton)
             guestListContainer = findViewById(R.id.guestListContainer)
+
+            // ✅ Popup Views (IDs matched to your XML)
+            guestNameInput = findViewById(R.id.tvGuestName)
+            guestVehicleInput = findViewById(R.id.tvGuestVehicle) // ✅ Bind Vehicle Input
+            generatedCodeText = findViewById(R.id.tvGuestCode)
+            okButton = findViewById(R.id.okButton)
 
             // Bottom Nav Views
             homeButton = findViewById(R.id.home)
-            historyButton = findViewById(R.id.home_history)
             profileButton = findViewById(R.id.profile)
             guestAccessButton = findViewById(R.id.guest_access)
 
             // 3. Navigation Listeners
             homeButton.setOnClickListener { presenter.onHomeClicked() }
-            historyButton.setOnClickListener { presenter.onHistoryClicked() }
             profileButton.setOnClickListener { presenter.onProfileClicked() }
-            guestAccessButton.setOnClickListener { presenter.onGuestAccessClicked() }
+            guestAccessButton.setOnClickListener { /* Already here */ }
 
             // 4. Load Initial Data
             presenter.loadGuests()
@@ -86,23 +86,24 @@ class GuestAccessActivity : Activity(), GuestAccessView.View {
             okButton.setOnClickListener {
                 try {
                     val name = guestNameInput.text.toString().trim()
+                    val vehicle = guestVehicleInput.text.toString().trim() // ✅ Get Vehicle
                     val currentCode = generatedCodeText.text.toString()
 
                     if (currentCode == "000000") {
                         // PHASE 1: Generate Code
                         if (name.isNotEmpty()) {
-                            presenter.generateCode(name)
+                            // ✅ Pass Name AND Vehicle to Presenter
+                            presenter.generateCode(name, vehicle)
                         } else {
                             Toast.makeText(this, "Please enter a guest name", Toast.LENGTH_SHORT).show()
                         }
                     } else {
-                        // PHASE 2: Clicked "Done" -> Close Popup
+                        // PHASE 2: Done -> Close Popup & Refresh
                         codeOverlay.visibility = View.GONE
-                        presenter.loadGuests() // This triggers the list refresh
+                        presenter.loadGuests()
                     }
                 } catch (e: Exception) {
                     Log.e("GuestActivity", "Error in button click: ${e.message}")
-                    Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         } catch (e: Exception) {
@@ -113,20 +114,27 @@ class GuestAccessActivity : Activity(), GuestAccessView.View {
     private fun resetPopupState() {
         guestNameInput.isEnabled = true
         guestNameInput.setText("")
+
+        // ✅ Reset Vehicle Input
+        guestVehicleInput.isEnabled = true
+        guestVehicleInput.setText("")
+
         generatedCodeText.text = "000000"
-        // Use ContextCompat or simple getColor safely
-        generatedCodeText.setTextColor(getColor(R.color.text_gray))
+        generatedCodeText.setTextColor(ContextCompat.getColor(this, R.color.text_gray))
         okButton.text = "Generate Code"
     }
 
     // --- MVP Interface Implementation ---
 
     override fun onCodeGenerated(code: String) {
-        // Run on UI Thread to prevent crashes
         runOnUiThread {
             generatedCodeText.text = code
-            generatedCodeText.setTextColor(getColor(R.color.success_green))
+            generatedCodeText.setTextColor(ContextCompat.getColor(this, R.color.success_green))
+
+            // ✅ Lock fields after generation
             guestNameInput.isEnabled = false
+            guestVehicleInput.isEnabled = false
+
             okButton.text = "Done / Close"
         }
     }
@@ -136,14 +144,31 @@ class GuestAccessActivity : Activity(), GuestAccessView.View {
             try {
                 guestListContainer.removeAllViews()
 
+                if (guests.isEmpty()) {
+                    val emptyView = TextView(this)
+                    emptyView.text = "No active guest keys."
+                    emptyView.setPadding(16, 32, 16, 16)
+                    emptyView.textAlignment = View.TEXT_ALIGNMENT_CENTER
+                    emptyView.setTextColor(ContextCompat.getColor(this, R.color.text_gray))
+                    guestListContainer.addView(emptyView)
+                    return@runOnUiThread
+                }
+
                 for (guest in guests) {
                     val view = layoutInflater.inflate(R.layout.item_guest, guestListContainer, false)
 
                     val tvName = view.findViewById<TextView>(R.id.tvGuestName)
                     val tvCode = view.findViewById<TextView>(R.id.tvGuestCode)
 
-                    if (tvName != null) tvName.text = guest.name
-                    if (tvCode != null) tvCode.text = "Code: ${guest.code}"
+                    if (tvName != null) {
+                        // ✅ Display Name AND Vehicle (if exists)
+                        val displayName = if (guest.vehicle.isNotEmpty()) "${guest.name} (${guest.vehicle})" else guest.name
+                        tvName.text = displayName
+                    }
+
+                    if (tvCode != null) {
+                        tvCode.text = "Code: ${guest.code}"
+                    }
 
                     guestListContainer.addView(view)
                 }
@@ -164,13 +189,11 @@ class GuestAccessActivity : Activity(), GuestAccessView.View {
         startActivity(Intent(this, HomeActivity::class.java))
         finish()
     }
-    override fun navigateToHistory() {
-        startActivity(Intent(this, HistoryActivity::class.java))
-        finish()
-    }
     override fun navigateToProfile() {
         startActivity(Intent(this, ProfileActivity::class.java))
         finish()
     }
+
+    override fun navigateToHistory() { }
     override fun navigateToGuestAccess() { }
 }

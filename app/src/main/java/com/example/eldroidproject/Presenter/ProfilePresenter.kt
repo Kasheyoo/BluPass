@@ -10,17 +10,23 @@ class ProfilePresenter(
     private val authRepo: AuthRepository
 ) : ProfileView.Presenter {
 
+    // --- Navigation ---
     override fun onHomeClicked() = view.navigateToHome()
     override fun onGuestAccessClicked() = view.navigateToGuestAccess()
     override fun onHistoryClicked() = view.navigateToHistory()
     override fun onProfileClicked() = view.navigateToProfile()
 
     override fun onLogoutClicked() {
-        authRepo.logoutUser()
+        authRepo.logoutUser() // Ensure AuthRepository has this method (or use logout())
         view.navigateToLogin()
     }
 
+    // --- Data Loading ---
     override fun loadProfileData() {
+        // This calls the updated Repository method which:
+        // 1. Fetches User Details (Phone, Plate, Model)
+        // 2. Queries 'registeredDevices' to find the matching 'userUUID'
+        // 3. Returns the correct Advertised UUID
         profileRepo.getProfileData(
             onSuccess = { profile ->
                 view.populateProfileFields(
@@ -28,7 +34,7 @@ class ProfilePresenter(
                     phone = profile.phone,
                     plate = profile.plateNumber,
                     model = profile.carModel,
-                    uuid = profile.uuid
+                    uuid = profile.uuid // ✅ Correctly populated from the Repo Query
                 )
             },
             onFailure = { error ->
@@ -37,7 +43,7 @@ class ProfilePresenter(
         )
     }
 
-    // ✅ FIXED: Removed 'uuid' parameter
+    // --- Saving Changes ---
     override fun saveProfileChanges(
         phone: String,
         plate: String,
@@ -48,19 +54,19 @@ class ProfilePresenter(
             return
         }
 
-        // ✅ FIXED: Removed 'uuid' from this call.
-        // Now arguments match (String, String, String, Function, Function)
+        // We do NOT save the UUID here because it is hardware-dependent and read-only.
         profileRepo.saveProfileData(
             phone, plate, model,
             onSuccess = {
                 view.showMessage("Profile updated successfully!")
                 view.onProfileSavedSuccess()
-                loadProfileData()
+                loadProfileData() // Refresh data to confirm changes
             },
             onFailure = { error -> view.showMessage("Error: $error") }
         )
     }
 
+    // --- Password Update ---
     override fun updatePassword(newPass: String, confirmPass: String) {
         if (newPass.isEmpty() || confirmPass.isEmpty()) {
             view.showMessage("Please enter both password fields")

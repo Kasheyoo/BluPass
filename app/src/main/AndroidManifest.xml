@@ -34,7 +34,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.EldroidProject">
         <activity
-            android:name=".home_logo_2"
+            android:name=".View.AdminHistoryActivity"
             android:exported="false" />
         <activity
             android:name=".View.AdminProfileActivity"

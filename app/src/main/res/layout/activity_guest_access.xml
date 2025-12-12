@@ -175,16 +175,6 @@
             app:tint="@color/primary_blue" />
 
         <ImageButton
-            android:id="@+id/home_history"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?selectableItemBackgroundBorderless"
-            android:contentDescription="History"
-            android:src="@drawable/history_logo"
-            app:tint="@color/text_gray" />
-
-        <ImageButton
             android:id="@+id/profile"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -252,6 +242,21 @@
                     android:layout_height="50dp"
                     android:background="@drawable/bg_input_field"
                     android:hint="Guest Name"
+                    android:paddingHorizontal="16dp"
+                    android:textColor="@color/text_dark"
+                    android:textColorHint="@color/text_gray"
+                    android:textSize="16sp" />
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="15dp"/>
+
+                <EditText
+                    android:id="@+id/tvGuestVehicle"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:background="@drawable/bg_input_field"
+                    android:hint="Vehicle"
                     android:paddingHorizontal="16dp"
                     android:textColor="@color/text_dark"
                     android:textColorHint="@color/text_gray"

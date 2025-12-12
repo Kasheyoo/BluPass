@@ -6,7 +6,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_gray"
+    android:background="#F8F9FB"
     tools:context=".HomeActivity">
 
     <View
@@ -33,7 +33,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Admin User"
+        android:text="Homeowner"
         android:textColor="@color/white"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -124,7 +124,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
         android:text="Auto-Access Active"
-        android:textColor="@color/text_dark"
+        android:textColor="#1A1D26"
         android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -214,16 +214,6 @@
             android:background="?selectableItemBackgroundBorderless"
             android:contentDescription="Guest Access"
             android:src="@drawable/key_logo_3"
-            app:tint="@color/text_gray" />
-
-        <ImageButton
-            android:id="@+id/home_history"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="?selectableItemBackgroundBorderless"
-            android:contentDescription="History"
-            android:src="@drawable/history_logo"
             app:tint="@color/text_gray" />
 
         <ImageButton

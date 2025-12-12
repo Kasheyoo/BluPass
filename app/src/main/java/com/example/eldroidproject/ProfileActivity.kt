@@ -20,7 +20,6 @@ class ProfileActivity : Activity(), ProfileView.View {
     private var isEditing = false
 
     // --- UI Components ---
-    // Note: Removed tvDisplayName as requested
     private lateinit var tvDisplayEmail: TextView
 
     // Editable Fields
@@ -42,10 +41,9 @@ class ProfileActivity : Activity(), ProfileView.View {
     private lateinit var btnEditProfile: Button
     private lateinit var btnLogout: Button
 
-    // Bottom Nav
+    // Bottom Nav (History Removed)
     private lateinit var homeButton: ImageButton
     private lateinit var guestAccessButton: ImageButton
-    private lateinit var historyButton: ImageButton
     private lateinit var profileButton: ImageButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,12 +75,10 @@ class ProfileActivity : Activity(), ProfileView.View {
                 enableEditMode()
             } else {
                 // CASE 2: Save Changes
-                // Note: We removed 'name' and 'uuid' from this gathering logic
                 val phone = etPhone.text.toString().trim()
                 val plate = etPlate.text.toString().trim()
                 val model = etCarModel.text.toString().trim()
 
-                // ✅ FIXED: Only passing editable fields
                 presenter.saveProfileChanges(phone, plate, model)
             }
         }
@@ -93,14 +89,13 @@ class ProfileActivity : Activity(), ProfileView.View {
     // --- Edit Mode Helpers ---
 
     private fun setFieldsEnabled(enabled: Boolean) {
-        // ✅ ONLY these three fields are editable
+        // Only these three fields are editable
         etPhone.isEnabled = enabled
         etPlate.isEnabled = enabled
         etCarModel.isEnabled = enabled
 
-        // ❌ These remain locked even in edit mode
+        // These remain locked even in edit mode
         etUuid.isEnabled = false
-        // Email is a TextView, so it is naturally read-only
     }
 
     private fun enableEditMode() {
@@ -118,7 +113,6 @@ class ProfileActivity : Activity(), ProfileView.View {
     // --- View Binding ---
 
     private fun bindViews() {
-        // Removed tvDisplayName binding
         tvDisplayEmail = findViewById(R.id.tvDisplayEmail)
 
         etPhone = findViewById(R.id.profilePhone)
@@ -135,9 +129,9 @@ class ProfileActivity : Activity(), ProfileView.View {
         btnEditProfile = findViewById(R.id.btnEdit)
         btnLogout = findViewById(R.id.btnLogout)
 
+        // Navigation Bindings (History Removed)
         homeButton = findViewById(R.id.home)
         guestAccessButton = findViewById(R.id.guest_access)
-        historyButton = findViewById(R.id.home_history)
         profileButton = findViewById(R.id.profile)
     }
 
@@ -158,7 +152,7 @@ class ProfileActivity : Activity(), ProfileView.View {
     private fun setupNavigation() {
         homeButton.setOnClickListener { presenter.onHomeClicked() }
         guestAccessButton.setOnClickListener { presenter.onGuestAccessClicked() }
-        historyButton.setOnClickListener { presenter.onHistoryClicked() }
+        // History listener removed
         profileButton.setOnClickListener { presenter.onProfileClicked() }
     }
 
@@ -172,7 +166,6 @@ class ProfileActivity : Activity(), ProfileView.View {
         uuid: String
     ) {
         runOnUiThread {
-            // Removed name population
             tvDisplayEmail.text = email
             etPhone.setText(phone)
             etPlate.setText(plate)
@@ -215,7 +208,7 @@ class ProfileActivity : Activity(), ProfileView.View {
         startActivity(Intent(this, GuestAccessActivity::class.java)); finish()
     }
     override fun navigateToHistory() {
-        startActivity(Intent(this, HistoryActivity::class.java)); finish()
+        // Logic removed
     }
     override fun navigateToProfile() { }
     override fun navigateToLogin() {

@@ -10,34 +10,41 @@ class GuestRepository {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseDatabase.getInstance().reference
 
-    // Function 1: Save a new invite to "Guests" path
-    fun saveGuestInvite(name: String, code: String, onComplete: (Boolean, String?) -> Unit) {
+    // Function 1: Save a new invite (invitedBy = Lot Number)
+    fun saveGuestInvite(name: String, vehicle: String, code: String, onComplete: (Boolean, String?) -> Unit) {
         val uid = auth.currentUser?.uid
         if (uid == null) {
             onComplete(false, "User not logged in")
             return
         }
 
-        // ✅ Updated Path: Guests -> userID
-        val guestRef = db.child("Guests").child(uid).push()
+        // 1. Fetch User's Lot Number first
+        db.child("users").child("homeowners").child(uid).get().addOnSuccessListener { snapshot ->
+            val lotNumber = snapshot.child("lotNumber").value?.toString() ?: "Unknown Lot"
 
-        val guestData = mapOf(
-            "name" to name,
-            "code" to code,
-            "status" to "active",
-            "timestamp" to System.currentTimeMillis()
-        )
+            // 2. Prepare Guest Data
+            val guestData = mapOf(
+                "name" to name,
+                "vehicle" to vehicle, // ✅ Saving Vehicle Info
+                "code" to code,
+                "lotNumber" to lotNumber,
+                "invitedBy" to lotNumber,
+                "status" to "active",
+                "timestamp" to System.currentTimeMillis()
+            )
 
-        guestRef.setValue(guestData)
-            .addOnSuccessListener {
-                onComplete(true, null)
-            }
-            .addOnFailureListener { e ->
-                onComplete(false, e.message)
-            }
+            // 3. Save to Database
+            val guestRef = db.child("Guests").child(uid).push()
+            guestRef.setValue(guestData)
+                .addOnSuccessListener { onComplete(true, null) }
+                .addOnFailureListener { e -> onComplete(false, e.message) }
+
+        }.addOnFailureListener {
+            onComplete(false, "Failed to fetch user details")
+        }
     }
 
-    // Function 2: Fetch the list from "Guests" path
+    // Function 2: Fetch the list
     fun getGuestList(callback: (List<Guest>) -> Unit) {
         val uid = auth.currentUser?.uid
         if (uid == null) {
@@ -45,48 +52,39 @@ class GuestRepository {
             return
         }
 
-        // ✅ Updated Path: Guests -> userID
         db.child("Guests").child(uid).addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val guests = snapshot.children.mapNotNull { child ->
-                    Guest(
-                        name = child.child("name").value?.toString() ?: "Unknown",
-                        code = child.child("code").value?.toString() ?: "",
-                        status = child.child("status").value?.toString() ?: "active",
-                        timestamp = child.child("timestamp").getValue(Long::class.java) ?: 0L
-                    )
+                    try {
+                        Guest(
+                            name = child.child("name").value?.toString() ?: "Unknown",
+                            vehicle = child.child("vehicle").value?.toString() ?: "", // ✅ Retrieve Vehicle
+                            code = child.child("code").value?.toString() ?: "",
+                            status = child.child("status").value?.toString() ?: "active",
+                            timestamp = child.child("timestamp").getValue(Long::class.java) ?: 0L
+                        )
+                    } catch (e: Exception) { null }
                 }
-                callback(guests)
+                callback(guests.reversed())
             }
-
-            override fun onCancelled(error: DatabaseError) {
-                callback(emptyList())
-            }
+            override fun onCancelled(error: DatabaseError) { callback(emptyList()) }
         })
     }
 
-    fun getGateStatus(): Gate {
-        return Gate("Closed")
-    }
-
-    // ✅ THIS IS THE MISSING FUNCTION. IT MUST BE HERE.
+    // Function 3: Get User Info Helper (Used for Welcome messages)
     fun getUserLotNumber(onResult: (String) -> Unit) {
         val uid = auth.currentUser?.uid
-
         if (uid == null) {
             onResult("Welcome")
             return
         }
 
-        // 1. Check Homeowners path for Lot Number
         db.child("users").child("homeowners").child(uid).get()
             .addOnSuccessListener { snapshot ->
                 if (snapshot.exists()) {
-                    // Fetch "lotNumber", default to "Homeowner" if empty
                     val lot = snapshot.child("lotNumber").value?.toString() ?: "Homeowner"
                     onResult(lot)
                 } else {
-                    // 2. Check Admin path for Username
                     db.child("users").child("admins").child(uid).get().addOnSuccessListener { adminSnap ->
                         val name = adminSnap.child("username").value?.toString() ?: "Admin"
                         onResult(name)
@@ -94,7 +92,7 @@ class GuestRepository {
                 }
             }
             .addOnFailureListener {
-                onResult("Welcome") // Fallback in case of database error
+                onResult("Welcome")
             }
     }
 }
