@@ -114,17 +114,52 @@ class AdminRepository {
     }
 
     // 3. Approve Homeowner
-    fun updateHomeownerStatus(uid: String, newStatus: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
-        db.child("users").child("homeowners").child(uid).child("status").setValue(newStatus)
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { onFailure(it.message ?: "Update failed") }
+    // In AdminRepository.kt
+
+    fun updateHomeownerStatus(email: String, newStatus: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+        // 1. Find the node with this email
+        val query = db.child("users").child("homeowners").orderByChild("email").equalTo(email)
+
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    for (child in snapshot.children) {
+                        // 2. Get the Key (UID) from the search result and update
+                        child.ref.child("status").setValue(newStatus)
+                            .addOnSuccessListener { onSuccess() }
+                            .addOnFailureListener { onFailure(it.message ?: "Update failed") }
+                    }
+                } else {
+                    onFailure("User email not found")
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                onFailure(error.message)
+            }
+        })
     }
 
-    // 4. Reject/Delete Homeowner
-    fun deleteHomeowner(uid: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
-        db.child("users").child("homeowners").child(uid).removeValue()
-            .addOnSuccessListener { onSuccess() }
-            .addOnFailureListener { onFailure(it.message ?: "Delete failed") }
+    fun deleteHomeowner(email: String, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+        // 1. Find the node with this email
+        val query = db.child("users").child("homeowners").orderByChild("email").equalTo(email)
+
+        query.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    for (child in snapshot.children) {
+                        // 2. Get the Key (UID) from the search result and delete
+                        child.ref.removeValue()
+                            .addOnSuccessListener { onSuccess() }
+                            .addOnFailureListener { onFailure(it.message ?: "Delete failed") }
+                    }
+                } else {
+                    onFailure("User email not found")
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                onFailure(error.message)
+            }
+        })
     }
 
     fun setGateOverride(status: String) {

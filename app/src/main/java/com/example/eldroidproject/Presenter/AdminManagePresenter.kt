@@ -19,23 +19,25 @@ class AdminManagePresenter(
         )
     }
 
-    fun approveUser(uid: String) {
-        repository.updateHomeownerStatus(uid, "approved",
+    // CHANGED: Accepts email instead of uid
+    fun approveUser(email: String) {
+        repository.updateHomeownerStatus(email, "approved",
             onSuccess = {
                 view.showMessage("User Approved")
                 view.refreshList()
             },
-            onFailure = { view.showMessage("Failed to approve") }
+            onFailure = { view.showMessage("Failed to approve: $it") }
         )
     }
 
-    fun rejectUser(uid: String) {
-        repository.deleteHomeowner(uid,
+    // CHANGED: Accepts email instead of uid
+    fun rejectUser(email: String) {
+        repository.deleteHomeowner(email,
             onSuccess = {
                 view.showMessage("User Rejected")
                 view.refreshList()
             },
-            onFailure = { view.showMessage("Failed to reject") }
+            onFailure = { view.showMessage("Failed to reject: $it") }
         )
     }
 }
