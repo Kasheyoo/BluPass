@@ -24,18 +24,30 @@ class ProfileRepository {
 
         // Check if Homeowner or Admin to determine path
         db.child("users").child("homeowners").child(uid).get().addOnSuccessListener { snapshot ->
-            val path = if (snapshot.exists()) "homeowners" else "admins"
+            val isHomeowner = snapshot.exists()
+            val path = if (isHomeowner) "homeowners" else "admins"
             val userRef = db.child("users").child(path).child(uid)
 
-            val updates = mapOf<String, Any>(
-                "mobile" to phone,
-                "plateNumber" to plate,
-                "carModel" to model
-            )
+            // ✅ LOGIC: Only include car details if the user is a Homeowner
+            val updates = if (isHomeowner) {
+                mapOf(
+                    "mobile" to phone,
+                    "plateNumber" to plate,
+                    "carModel" to model
+                )
+            } else {
+                // Admin: Update ONLY mobile number
+                mapOf(
+                    "mobile" to phone
+                )
+            }
 
             userRef.updateChildren(updates)
                 .addOnSuccessListener { onSuccess() }
                 .addOnFailureListener { e -> onFailure(e.message ?: "Update failed") }
+
+        }.addOnFailureListener {
+            onFailure(it.message ?: "Database error")
         }
     }
 

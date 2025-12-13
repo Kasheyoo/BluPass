@@ -108,28 +108,6 @@ class AuthRepository {
         }
     }
 
-    fun getHomeowners(callback: (List<User>) -> Unit) {
-        database.getReference("users").child("homeowners")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val homeowners = snapshot.children.map { uuid ->
-                        val cred = uuid.child("credentials")
-                        User(
-                            email = cred.child("email").getValue(String::class.java) ?: "",
-                            mobile = cred.child("mobile").getValue(String::class.java) ?: "",
-                            lotNumber = cred.child("lotNumber").getValue(String::class.java) ?: "",
-                            role = cred.child("role").getValue(String::class.java) ?: "homeowner",
-                            status = cred.child("status").getValue(String::class.java) ?: ""
-                        )
-                    }
-                    callback(homeowners)
-                }
-                override fun onCancelled(error: DatabaseError) {
-                    callback(emptyList())
-                }
-            })
-    }
-
     fun fetchLotNumber(onResult: (String) -> Unit) {
         val uid = auth.currentUser?.uid
 
