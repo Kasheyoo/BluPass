@@ -46,7 +46,6 @@ class AdminRepository {
 
                         // 3. Create User Object including the UID
                         val user = User(
-                            uid = uid, // ✅ Pass the UID here
                             email = email,
                             mobile = mobile,
                             role = "Homeowner",

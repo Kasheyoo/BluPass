@@ -196,10 +196,10 @@ class HomeActivity : Activity(), HomeView.View {
             val currentAdapter = bluetoothManager.adapter
             val deviceName = currentAdapter?.name ?: "UnknownDevice"
 
-            // ✅ Feedback
+            // Feedback
             Toast.makeText(this, "Started advertising UUID: ${SERVICE_UUID.uuid}", Toast.LENGTH_SHORT).show()
 
-            // ✅ Store advertised UUID + timestamp in Firebase
+            // Store advertised UUID + timestamp in Firebase
             val user = FirebaseAuth.getInstance().currentUser
             if (user != null) {
                 // Sanitize device name for Firebase path (no '.' or '#')

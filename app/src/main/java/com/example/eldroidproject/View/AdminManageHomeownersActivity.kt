@@ -80,7 +80,6 @@ class AdminManageHomeownersActivity : Activity(), AdminManageView {
             }
 
             for (user in users) {
-                // Inflate the Item Layout
                 val card = inflater.inflate(R.layout.item_homeowner_request, pendingContainer, false)
 
                 val tvName = card.findViewById<TextView>(R.id.tvPendingName)
@@ -93,15 +92,23 @@ class AdminManageHomeownersActivity : Activity(), AdminManageView {
                 val lotInfo = if (user.lotNumber.isNullOrEmpty()) "No Lot" else user.lotNumber
                 tvDetails.text = "$lotInfo"
 
-                // Bind Actions (Uses user.uid now that it exists in Model)
+                // --- CHANGED LOGIC BELOW ---
+                // We now use 'user.email' as the key to find and update the user
+
                 btnApprove.setOnClickListener {
-                    if (user.uid.isNotEmpty()) presenter.approveUser(user.uid)
-                    else showMessage("Error: User ID missing")
+                    if (user.email.isNotEmpty()) {
+                        presenter.approveUser(user.email) // Pass email instead of UID
+                    } else {
+                        showMessage("Error: User Email missing")
+                    }
                 }
 
                 btnReject.setOnClickListener {
-                    if (user.uid.isNotEmpty()) presenter.rejectUser(user.uid)
-                    else showMessage("Error: User ID missing")
+                    if (user.email.isNotEmpty()) {
+                        presenter.rejectUser(user.email) // Pass email instead of UID
+                    } else {
+                        showMessage("Error: User Email missing")
+                    }
                 }
 
                 pendingContainer.addView(card)

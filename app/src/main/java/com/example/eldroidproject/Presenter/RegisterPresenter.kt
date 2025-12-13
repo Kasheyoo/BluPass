@@ -49,11 +49,9 @@ class RegisterPresenter(
             mobile = mobile,
             role = role,
             lotNumber = if (role == "Homeowner") lotNumber else null,
-            password = password, // Still keeping this for testing as requested
             status = if (role == "Admin") "approved" else "pending"
         )
 
-        // --- Send to Repository ---
         authRepository.registerUser(
             email = email,
             password = password,
